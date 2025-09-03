@@ -1,7 +1,6 @@
 // Vercel Serverless Function
 // This function handles generating the reply.
-// It receives the original text, its language, the user's intent in Chinese, and the desired tone.
-// It then calls the Gemini API to generate a natural, tone-appropriate reply in the original language.
+// It generates a reply in the target language, then translates it back to Chinese for verification.
 
 export const config = {
     maxDuration: 60,
@@ -16,65 +15,72 @@ export default async function handler(request, response) {
         const { originalText, language, userIntent, tone } = request.body;
 
         if (!originalText || !language || !userIntent || !tone) {
-            return response.status(400).json({ error: 'Missing required fields for generating a reply.' });
+            return response.status(400).json({ error: 'Missing required fields.' });
         }
 
-        // Map frontend tone to a more descriptive instruction for the AI
         const toneInstructions = {
             casual: "in a very casual, informal, and friendly tone, like talking to a close friend.",
             friendly: "in a standard friendly and polite tone.",
             polite: "in a respectful and polite tone, suitable for someone you don't know well or a senior person.",
             business: "in a formal, professional, and business-like tone."
         };
-
         const instruction = toneInstructions[tone] || toneInstructions.friendly;
 
-        // Construct the prompt for Gemini
-        const prompt = `
+        const apiKey = process.env.GEMINI_API_KEY;
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+        // Step 1: Generate the reply in the foreign language
+        const generationPrompt = `
             You are an expert language assistant. Your task is to help me reply to a message.
             The language of the conversation is ${language}.
             The message I received was: "${originalText}"
             My intention for the reply, written in Chinese, is: "${userIntent}"
-            
-            Please generate a natural and culturally appropriate reply in ${language} for me.
-            The reply must be ${instruction}
-
-            IMPORTANT GREETING RULE: For salutations, please prefer to use generic greetings like "Hi,", "Hello,". Avoid using time-specific greetings (e.g., "Good morning", "Good afternoon") unless it is absolutely necessary and natural for the context.
-            
+            Please generate a natural and culturally appropriate reply in ${language} for me. The reply must be ${instruction}
+            IMPORTANT GREETING RULE: For salutations, please prefer to use generic greetings like "Hi,", "Hello,". Avoid using time-specific greetings (e.g., "Good morning").
             Only output the final reply text, with no extra explanations or quotation marks.
         `;
-        
-        const apiKey = process.env.GEMINI_API_KEY;
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
 
-        const payload = {
-            contents: [
-                { parts: [{ text: prompt }] }
-            ]
-        };
-
-        const apiResponse = await fetch(apiUrl, {
+        const generationResponse = await fetch(apiUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
+            body: JSON.stringify({ contents: [{ parts: [{ text: generationPrompt }] }] })
         });
 
-        if (!apiResponse.ok) {
-            const errorBody = await apiResponse.text();
-            console.error('Gemini API Error:', errorBody);
-            throw new Error(`Gemini API failed with status: ${apiResponse.status}`);
+        if (!generationResponse.ok) throw new Error(`Gemini API (generation) failed with status: ${generationResponse.status}`);
+        
+        const generationResult = await generationResponse.json();
+        const replyText = generationResult.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (!replyText) throw new Error('Could not generate a reply from the Gemini API response.');
+
+        // Step 2: Translate the generated reply back to Chinese for verification
+        const translationPrompt = `
+            Translate the following text accurately from ${language} to Chinese.
+            Only output the translated Chinese text, without any explanations or quotation marks.
+            Text to translate: "${replyText}"
+        `;
+
+        const translationResponse = await fetch(apiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ contents: [{ parts: [{ text: translationPrompt }] }] })
+        });
+        
+        if (!translationResponse.ok) {
+             // If back-translation fails, still return the main reply
+            console.error('Gemini API translation back to Chinese failed.');
+            return response.status(200).json({ 
+                reply: replyText.trim(),
+                replyTranslation: '翻译失败，但回复已生成。' 
+            });
         }
 
-        const result = await apiResponse.json();
+        const translationResult = await translationResponse.json();
+        const replyTranslationText = translationResult.candidates?.[0]?.content?.parts?.[0]?.text;
 
-        const candidate = result.candidates?.[0];
-        const replyText = candidate?.content?.parts?.[0]?.text;
-
-        if (!replyText) {
-            throw new Error('Could not generate a reply from the Gemini API response.');
-        }
-
-        return response.status(200).json({ reply: replyText.trim() });
+        return response.status(200).json({
+            reply: replyText.trim(),
+            replyTranslation: replyTranslationText ? replyTranslationText.trim() : '无法获取中文翻译。'
+        });
 
     } catch (error) {
         console.error('Error in generateReply handler:', error);
