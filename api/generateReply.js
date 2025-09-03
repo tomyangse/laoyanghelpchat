@@ -38,6 +38,9 @@ export default async function handler(request, response) {
             
             Please generate a natural and culturally appropriate reply in ${language} for me.
             The reply must be ${instruction}
+
+            IMPORTANT GREETING RULE: For salutations, please prefer to use generic greetings like "Hi,", "Hello,". Avoid using time-specific greetings (e.g., "Good morning", "Good afternoon") unless it is absolutely necessary and natural for the context.
+            
             Only output the final reply text, with no extra explanations or quotation marks.
         `;
         
@@ -78,3 +81,4 @@ export default async function handler(request, response) {
         return response.status(500).json({ error: error.message || 'An internal server error occurred.' });
     }
 }
+
