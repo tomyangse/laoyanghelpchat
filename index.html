@@ -110,7 +110,12 @@
             <!-- Step 3: Generated Reply -->
             <div id="step3" class="hidden space-y-4">
                 <h2 class="text-lg font-semibold text-green-700">生成成功！这是为您准备的回复：</h2>
-                <div class="p-4 bg-green-50 rounded-lg relative">
+                <div class="p-4 bg-green-50 rounded-lg relative space-y-3">
+                    <div>
+                        <p class="text-sm text-gray-500">回复的中文意思：</p>
+                        <p id="replyTranslationDisplay" class="text-gray-700"></p>
+                    </div>
+                    <hr class="border-green-200">
                     <p id="finalReply" class="text-gray-800 text-lg"></p>
                     <button id="copyBtn" class="absolute top-2 right-2 btn-secondary px-3 py-1 text-sm rounded-md">复制</button>
                 </div>
@@ -148,6 +153,7 @@
         const generateBtn = document.getElementById('generateBtn');
         
         const finalReplyEl = document.getElementById('finalReply');
+        const replyTranslationDisplayEl = document.getElementById('replyTranslationDisplay');
         const copyBtn = document.getElementById('copyBtn');
         const resetBtn = document.getElementById('resetBtn');
 
@@ -279,6 +285,7 @@
 
                 const data = await response.json();
                 finalReplyEl.textContent = data.reply;
+                replyTranslationDisplayEl.textContent = data.replyTranslation;
                 step3.classList.remove('hidden');
 
             } catch(err) {
@@ -329,6 +336,7 @@
 
             replyIntentEl.value = '';
             document.querySelectorAll('.btn-tone').forEach(btn => btn.classList.remove('active'));
+            replyTranslationDisplayEl.textContent = ''; 
 
             step1.classList.remove('hidden');
             step2.classList.add('hidden');
