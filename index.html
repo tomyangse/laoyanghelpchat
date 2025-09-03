@@ -5,127 +5,176 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>老杨帮你聊 - 智能信息回复助手</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
+        /* * 设计理念: 北欧极简风格 (Nordic Minimalist)
+         * 1. 色彩: 采用低饱和度的中性色调，营造宁静、专业的氛围。主色调为深灰蓝，辅以不同层次的灰色。
+         * 2. 字体: Inter (英文) 和 Noto Sans SC (中文) 提供了极佳的现代感和可读性。
+         * 3. 布局: 增加元素间距 (Whitespace)，创造呼吸感，让视觉焦点更清晰。
+         * 4. 组件: 按钮、输入框等元素采用更柔和的圆角和细致的边框，提升精致感。
+        */
         body {
-            font-family: 'Inter', 'Helvetica Neue', 'Arial', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
-        }
-        .gradient-bg {
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            font-family: 'Inter', 'Noto Sans SC', sans-serif;
+            background-color: #f4f7f9; /* 柔和的浅灰色背景 */
         }
         .card {
-            background-color: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background-color: #ffffff;
+            border: 1px solid #e5e7eb; /* 细致的边框 */
         }
         .btn-primary {
-            background-color: #4f46e5;
+            background-color: #2c3e50; /* 深灰蓝主色调 */
             color: white;
-            transition: background-color 0.3s ease;
+            transition: all 0.3s ease;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
         }
         .btn-primary:hover {
-            background-color: #4338ca;
+            background-color: #34495e;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
         .btn-secondary {
-            background-color: #e5e7eb;
-            color: #1f2937;
-            transition: background-color 0.3s ease;
+            background-color: #f3f4f6;
+            color: #374151;
+            border: 1px solid #d1d5db;
+            transition: all 0.3s ease;
         }
         .btn-secondary:hover {
-            background-color: #d1d5db;
+            background-color: #e5e7eb;
+            border-color: #9ca3af;
+        }
+        .btn-tone {
+            background-color: #ffffff;
+            color: #4b5563;
+            border: 1px solid #d1d5db;
+            transition: all 0.2s ease-in-out;
+        }
+        .btn-tone:hover {
+            border-color: #2c3e50;
+            color: #2c3e50;
         }
         .btn-tone.active {
-            background-color: #4f46e5;
+            background-color: #2c3e50;
             color: white;
-            border-color: #4f46e5;
+            border-color: #2c3e50;
         }
     </style>
 </head>
-<body class="gradient-bg min-h-screen flex items-center justify-center p-4">
+<body class="min-h-screen flex items-center justify-center p-4">
 
     <div class="w-full max-w-2xl mx-auto">
-        <div class="card rounded-2xl shadow-xl p-6 md:p-8 space-y-6">
+        <div class="card rounded-2xl shadow-xl p-8 md:p-10 space-y-8">
             
             <!-- Header -->
-            <div class="text-center">
-                <h1 class="text-3xl font-bold text-gray-800">老杨帮你聊 💬</h1>
-                <p class="text-gray-600 mt-2">上传对话截图，轻松回复每一条信息</p>
+            <div class="flex justify-center items-center gap-4 sm:gap-6">
+                <img src="https://github.com/tomyangse/laoyanghelpchat/blob/main/laoyang.jpeg?raw=true" alt="老杨卡通形象" class="h-20 w-20 rounded-full object-cover border-2 border-white shadow-md">
+                <div class="text-left">
+                    <h1 class="text-4xl font-bold text-gray-800">老杨帮你聊</h1>
+                    <p class="text-gray-500 mt-1 text-lg">上传对话截图，轻松回复每一条信息</p>
+                </div>
             </div>
 
             <!-- Step 1: Image Upload -->
             <div id="step1">
-                <h2 class="text-lg font-semibold text-gray-700 mb-3">第一步：上传对话截图</h2>
-                <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:border-indigo-500 transition" id="dropzone">
+                <div class="space-y-2 mb-4">
+                    <p class="text-sm font-semibold text-gray-500 tracking-wide uppercase">第一步</p>
+                    <h2 class="text-xl font-semibold text-gray-800">上传对话截图</h2>
+                </div>
+                <div class="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center cursor-pointer hover:border-gray-400 transition" id="dropzone">
                     <input type="file" id="imageUpload" class="hidden" accept="image/*">
                     <div id="upload-prompt">
-                        <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
-                            <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        <svg class="mx-auto h-12 w-12 text-gray-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0l-3.75 3.75M12 9.75l3.75 3.75M3 17.25V6.75A2.25 2.25 0 015.25 4.5h13.5A2.25 2.25 0 0121 6.75v10.5A2.25 2.25 0 0118.75 19.5H5.25A2.25 2.25 0 013 17.25z" />
                         </svg>
-                        <p class="mt-2 text-sm text-gray-600">点击此处选择图片，或将图片拖拽到这里</p>
+                        <p class="mt-4 text-sm text-gray-600">点击此处选择图片，或将图片拖拽到这里</p>
+                        <p class="text-xs text-gray-400 mt-1">支持 PNG, JPG, GIF 等格式</p>
                     </div>
-                    <img id="imagePreview" src="" alt="Image Preview" class="hidden max-h-48 mx-auto rounded-lg"/>
+                    <img id="imagePreview" src="" alt="Image Preview" class="hidden max-h-48 mx-auto rounded-lg shadow-md"/>
                 </div>
-                <button id="analyzeBtn" class="w-full btn-primary font-bold py-3 px-4 rounded-lg mt-4 disabled:bg-gray-400" disabled>
+                <button id="analyzeBtn" class="w-full btn-primary font-bold py-3 px-4 rounded-lg mt-6 text-base" disabled>
                     老杨马上翻译给您
                 </button>
             </div>
 
             <!-- Loading Spinner -->
-            <div id="loader" class="hidden text-center py-8">
-                <div role="status">
-                    <svg aria-hidden="true" class="inline w-10 h-10 text-gray-200 animate-spin dark:text-gray-600 fill-indigo-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <div id="loader" class="hidden text-center py-12">
+                <div role="status" class="flex flex-col items-center">
+                    <svg aria-hidden="true" class="w-12 h-12 text-gray-300 animate-spin fill-[#2c3e50]" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/>
                         <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0492C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/>
                     </svg>
-                    <p class="mt-4 text-gray-600">AI 正在努力分析，请稍候...</p>
+                    <p class="mt-4 text-gray-500">AI 正在努力分析，请稍候...</p>
                 </div>
             </div>
 
             <!-- Step 2: Analysis Result -->
-            <div id="step2" class="hidden space-y-4">
-                <h2 class="text-lg font-semibold text-gray-700">第二步：确认信息与准备回复</h2>
-                <div class="space-y-3 p-4 bg-gray-50 rounded-lg">
-                    <p><strong><span class="text-indigo-600">识别语言：</span></strong> <span id="language"></span></p>
-                    <p><strong><span class="text-indigo-600">原文内容：</span></strong> <span id="originalText" class="text-gray-700"></span></p>
-                    <p><strong><span class="text-indigo-600">中文意思：</span></strong> <span id="translatedText" class="text-gray-700 font-semibold"></span></p>
+            <div id="step2" class="hidden space-y-8">
+                 <div class="space-y-2">
+                    <p class="text-sm font-semibold text-gray-500 tracking-wide uppercase">第二步</p>
+                    <h2 class="text-xl font-semibold text-gray-800">确认信息并准备回复</h2>
                 </div>
-
-                <div class="space-y-3">
-                    <label for="replyIntent" class="font-semibold text-gray-700">您想回复的内容（用中文输入）：</label>
-                    <textarea id="replyIntent" rows="3" class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="例如：好啊，下午2点可以吗？"></textarea>
-                    
-                    <label class="font-semibold text-gray-700">选择回复语气：</label>
-                    <div class="flex flex-wrap gap-2" id="tone-options">
-                        <button class="btn-tone border border-gray-300 px-4 py-2 rounded-lg text-sm" data-tone="casual">朋友般随意</button>
-                        <button class="btn-tone border border-gray-300 px-4 py-2 rounded-lg text-sm" data-tone="friendly">友好标准</button>
-                        <button class="btn-tone border border-gray-300 px-4 py-2 rounded-lg text-sm" data-tone="polite">礼貌客气</button>
-                        <button class="btn-tone border border-gray-300 px-4 py-2 rounded-lg text-sm" data-tone="business">商务正式</button>
+                <div class="space-y-4 p-5 bg-gray-50 rounded-lg border border-gray-200">
+                    <div class="flex items-start">
+                        <strong class="text-gray-500 w-24 shrink-0">识别语言：</strong> <span id="language" class="font-semibold text-gray-800"></span>
+                    </div>
+                     <div class="flex items-start">
+                        <strong class="text-gray-500 w-24 shrink-0">原文内容：</strong> <span id="originalText" class="text-gray-700"></span>
+                    </div>
+                     <div class="flex items-start">
+                        <strong class="text-gray-500 w-24 shrink-0">中文意思：</strong> <span id="translatedText" class="text-gray-800 font-semibold"></span>
                     </div>
                 </div>
-                 <button id="generateBtn" class="w-full btn-primary font-bold py-3 px-4 rounded-lg disabled:bg-gray-400">
+
+                <div class="space-y-4">
+                    <div>
+                        <label for="replyIntent" class="block font-medium text-gray-700 mb-2">您想回复的内容（用中文输入）：</label>
+                        <textarea id="replyIntent" rows="3" class="w-full border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-[#2c3e50] focus:border-[#2c3e50] transition" placeholder="例如：好啊，下午2点可以吗？"></textarea>
+                    </div>
+                    <div>
+                        <label class="block font-medium text-gray-700 mb-2">选择回复语气：</label>
+                        <div class="flex flex-wrap gap-3" id="tone-options">
+                            <button class="btn-tone px-4 py-2 rounded-lg text-sm" data-tone="casual">朋友般随意</button>
+                            <button class="btn-tone px-4 py-2 rounded-lg text-sm" data-tone="friendly">友好标准</button>
+                            <button class="btn-tone px-4 py-2 rounded-lg text-sm" data-tone="polite">礼貌客气</button>
+                            <button class="btn-tone px-4 py-2 rounded-lg text-sm" data-tone="business">商务正式</button>
+                        </div>
+                    </div>
+                </div>
+                 <button id="generateBtn" class="w-full btn-primary font-bold py-3 px-4 rounded-lg text-base">
                     生成回复
                 </button>
             </div>
 
             <!-- Step 3: Generated Reply -->
-            <div id="step3" class="hidden space-y-4">
-                <h2 class="text-lg font-semibold text-green-700">生成成功！这是为您准备的回复：</h2>
-                <div class="p-4 bg-green-50 rounded-lg relative space-y-3">
-                    <div>
-                        <p class="text-sm text-gray-500">回复的中文意思：</p>
-                        <p id="replyTranslationDisplay" class="text-gray-700"></p>
+            <div id="step3" class="hidden space-y-6">
+                <h2 class="text-xl font-semibold text-gray-800 flex items-center">
+                    <svg class="w-6 h-6 text-green-500 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    生成成功！这是为您准备的回复
+                </h2>
+                <div class="p-5 bg-gray-50 rounded-lg relative border border-gray-200">
+                    <div class="space-y-3">
+                        <div>
+                            <p class="text-sm text-gray-500 mb-1">回复的中文意思：</p>
+                            <p id="replyTranslationDisplay" class="text-gray-700"></p>
+                        </div>
+                        <hr class="border-gray-200">
+                        <div>
+                            <p class="text-sm text-gray-500 mb-1">最终回复：</p>
+                            <p id="finalReply" class="text-gray-900 text-lg font-semibold"></p>
+                        </div>
                     </div>
-                    <hr class="border-green-200">
-                    <p id="finalReply" class="text-gray-800 text-lg"></p>
-                    <button id="copyBtn" class="absolute top-2 right-2 btn-secondary px-3 py-1 text-sm rounded-md">复制</button>
+                    <button id="copyBtn" class="absolute top-4 right-4 btn-secondary px-3 py-1 text-sm rounded-md">复制</button>
                 </div>
-                <button id="resetBtn" class="w-full btn-secondary font-bold py-3 px-4 rounded-lg">
+                <button id="resetBtn" class="w-full btn-secondary font-bold py-3 px-4 rounded-lg text-base">
                     开始新的对话
                 </button>
             </div>
             
             <!-- Error Message -->
-            <div id="error-message" class="hidden p-4 bg-red-100 text-red-700 rounded-lg"></div>
+            <div id="error-message" class="hidden p-4 bg-red-50 text-red-700 rounded-lg border border-red-200"></div>
 
         </div>
     </div>
@@ -166,14 +215,14 @@
         dropzone.addEventListener('click', () => imageUpload.click());
         dropzone.addEventListener('dragover', (e) => {
             e.preventDefault();
-            dropzone.classList.add('border-indigo-500');
+            dropzone.classList.add('border-gray-400', 'bg-gray-50');
         });
         dropzone.addEventListener('dragleave', () => {
-            dropzone.classList.remove('border-indigo-500');
+            dropzone.classList.remove('border-gray-400', 'bg-gray-50');
         });
         dropzone.addEventListener('drop', (e) => {
             e.preventDefault();
-            dropzone.classList.remove('border-indigo-500');
+            dropzone.classList.remove('border-gray-400', 'bg-gray-50');
             const files = e.dataTransfer.files;
             if (files.length > 0) {
                 handleFile(files[0]);
@@ -210,7 +259,6 @@
                 imagePreview.classList.remove('hidden');
                 uploadPrompt.classList.add('hidden');
                 analyzeBtn.disabled = false;
-                // Store base64 data without the prefix
                 imageData = e.target.result.split(',')[1];
             };
             reader.readAsDataURL(file);
@@ -322,13 +370,11 @@
         }
 
         function resetApp() {
-            // Reset state
             imageData = null;
             analysisResult = {};
             selectedTone = '';
 
-            // Reset UI
-            imageUpload.value = ''; // Clear file input
+            imageUpload.value = '';
             imagePreview.classList.add('hidden');
             imagePreview.src = '';
             uploadPrompt.classList.remove('hidden');
