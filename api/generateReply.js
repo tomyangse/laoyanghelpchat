@@ -3,8 +3,6 @@
 
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-// 移除了 Vercel Edge Runtime 的配置，使用默认的 Node.js 环境
-
 export default async function handler(req) {
     if (req.method !== 'POST') {
         return new Response(JSON.stringify({ error: 'Method not allowed' }), {
@@ -15,7 +13,7 @@ export default async function handler(req) {
 
     try {
         const { originalText, language, userIntent, tone } = await req.json();
-
+        
         if (!originalText || !language || !userIntent || !tone) {
             return new Response(JSON.stringify({ error: 'Missing required fields' }), {
                 status: 400,
@@ -42,20 +40,21 @@ export default async function handler(req) {
                 break;
         }
 
-        const generationPrompt = `你是一位精通 ${language} 的本地人。现在你需要帮我回复一条信息。
-原始信息是：“${originalText}”
+        const generationPrompt = `你是一位精通 ${language} 的语言专家和沟通高手。
+你的任务是帮我回复一条信息。
+原始信息是（用 ${language} 写的）：“${originalText}”
 我想表达的意思是（用中文描述）：“${userIntent}”
 ${toneInstruction}
-请为我生成一个自然、地道、符合当地人日常口语习惯的回复。
-请优先使用通用的问候语（如 Hi, Hello），避免使用和时间相关的问候语（如 Good Morning），除非在上下文中非常必要和自然。
+请为我生成一个自然、地道、符合本地人习惯的 ${language} 回复。
+你的回复应该优先使用 'Hi', 'Hello' 等通用问候语，避免使用和时间相关的问候语（如 'Good morning'），除非在上下文中非常必要和自然。
 请直接生成 ${language} 的回复内容，不要包含任何额外的解释或标题。`;
-
+        
         const generationResult = await model.generateContent(generationPrompt);
-        const generatedReply = (await generationResult.response).text();
+        const generatedReply = generationResult.response.text();
         
         const translationPrompt = `请将以下 ${language} 文本翻译成自然流畅的中文：\n\n"${generatedReply}"`;
         const translationResult = await model.generateContent(translationPrompt);
-        const translatedReply = (await translationResult.response).text();
+        const translatedReply = translationResult.response.text();
 
         return new Response(JSON.stringify({
             reply: generatedReply.trim(),
