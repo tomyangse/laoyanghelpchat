@@ -38,7 +38,7 @@ export default async function handler(req, res) {
         }
 
         const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-        const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
         let toneInstruction = '';
         switch (tone) {
@@ -82,4 +82,5 @@ export default async function handler(req, res) {
         return res.status(500).json({ error: 'Failed to generate message.', details: error.message });
     }
 }
+
 
