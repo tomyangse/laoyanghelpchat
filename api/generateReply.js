@@ -1,90 +1,76 @@
 // Vercel Serverless Function
-// This function handles generating the reply.
-// It generates a reply in the target language, then translates it back to Chinese for verification.
+// Handles generating a reply based on context and user intent.
 
-export const config = {
-    maxDuration: 60,
-};
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
-export default async function handler(request, response) {
-    if (request.method !== 'POST') {
-        return response.status(405).json({ error: 'Method Not Allowed' });
+// 移除了 Vercel Edge Runtime 的配置，使用默认的 Node.js 环境
+
+export default async function handler(req) {
+    if (req.method !== 'POST') {
+        return new Response(JSON.stringify({ error: 'Method not allowed' }), {
+            status: 405,
+            headers: { 'Content-Type': 'application/json' },
+        });
     }
 
     try {
-        const { originalText, language, userIntent, tone } = request.body;
+        const { originalText, language, userIntent, tone } = await req.json();
 
         if (!originalText || !language || !userIntent || !tone) {
-            return response.status(400).json({ error: 'Missing required fields.' });
-        }
-
-        const toneInstructions = {
-            casual: "in a very casual, informal, and friendly tone, like talking to a close friend.",
-            friendly: "in a standard friendly and polite tone.",
-            polite: "in a respectful and polite tone, suitable for someone you don't know well or a senior person.",
-            business: "in a formal, professional, and business-like tone."
-        };
-        const instruction = toneInstructions[tone] || toneInstructions.friendly;
-
-        const apiKey = process.env.GEMINI_API_KEY;
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
-
-        // Step 1: Generate the reply in the foreign language
-        const generationPrompt = `
-            You are an expert language assistant. Your task is to help me reply to a message.
-            The language of the conversation is ${language}.
-            The message I received was: "${originalText}"
-            My intention for the reply, written in Chinese, is: "${userIntent}"
-            Please generate a natural and culturally appropriate reply in ${language} for me. The reply must be ${instruction}
-            IMPORTANT GREETING RULE: For salutations, please prefer to use generic greetings like "Hi,", "Hello,". Avoid using time-specific greetings (e.g., "Good morning").
-            Only output the final reply text, with no extra explanations or quotation marks.
-        `;
-
-        const generationResponse = await fetch(apiUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ contents: [{ parts: [{ text: generationPrompt }] }] })
-        });
-
-        if (!generationResponse.ok) throw new Error(`Gemini API (generation) failed with status: ${generationResponse.status}`);
-        
-        const generationResult = await generationResponse.json();
-        const replyText = generationResult.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (!replyText) throw new Error('Could not generate a reply from the Gemini API response.');
-
-        // Step 2: Translate the generated reply back to Chinese for verification
-        const translationPrompt = `
-            Translate the following text accurately from ${language} to Chinese.
-            Only output the translated Chinese text, without any explanations or quotation marks.
-            Text to translate: "${replyText}"
-        `;
-
-        const translationResponse = await fetch(apiUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ contents: [{ parts: [{ text: translationPrompt }] }] })
-        });
-        
-        if (!translationResponse.ok) {
-             // If back-translation fails, still return the main reply
-            console.error('Gemini API translation back to Chinese failed.');
-            return response.status(200).json({ 
-                reply: replyText.trim(),
-                replyTranslation: '翻译失败，但回复已生成。' 
+            return new Response(JSON.stringify({ error: 'Missing required fields' }), {
+                status: 400,
+                headers: { 'Content-Type': 'application/json' },
             });
         }
 
-        const translationResult = await translationResponse.json();
-        const replyTranslationText = translationResult.candidates?.[0]?.content?.parts?.[0]?.text;
+        const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+        const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
-        return response.status(200).json({
-            reply: replyText.trim(),
-            replyTranslation: replyTranslationText ? replyTranslationText.trim() : '无法获取中文翻译。'
+        let toneInstruction = '';
+        switch (tone) {
+            case 'casual':
+                toneInstruction = `语气要非常随意、口语化，就像和好朋友聊天一样。`;
+                break;
+            case 'friendly':
+                toneInstruction = `语气要友好、标准，适合大多数日常场景。`;
+                break;
+            case 'polite':
+                toneInstruction = `语气要礼貌、客气，可以稍微正式一点。`;
+                break;
+            case 'business':
+                toneInstruction = `语气要非常商务、正式，适合工作场合。`;
+                break;
+        }
+
+        const generationPrompt = `你是一位精通 ${language} 的本地人。现在你需要帮我回复一条信息。
+原始信息是：“${originalText}”
+我想表达的意思是（用中文描述）：“${userIntent}”
+${toneInstruction}
+请为我生成一个自然、地道、符合当地人日常口语习惯的回复。
+请优先使用通用的问候语（如 Hi, Hello），避免使用和时间相关的问候语（如 Good Morning），除非在上下文中非常必要和自然。
+请直接生成 ${language} 的回复内容，不要包含任何额外的解释或标题。`;
+
+        const generationResult = await model.generateContent(generationPrompt);
+        const generatedReply = (await generationResult.response).text();
+        
+        const translationPrompt = `请将以下 ${language} 文本翻译成自然流畅的中文：\n\n"${generatedReply}"`;
+        const translationResult = await model.generateContent(translationPrompt);
+        const translatedReply = (await translationResult.response).text();
+
+        return new Response(JSON.stringify({
+            reply: generatedReply.trim(),
+            replyTranslation: translatedReply.trim()
+        }), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' },
         });
 
     } catch (error) {
-        console.error('Error in generateReply handler:', error);
-        return response.status(500).json({ error: error.message || 'An internal server error occurred.' });
+        console.error("Error in generateReply API:", error);
+        return new Response(JSON.stringify({ error: 'Failed to generate reply.', details: error.message }), {
+            status: 500,
+            headers: { 'Content-Type': 'application/json' },
+        });
     }
 }
 
