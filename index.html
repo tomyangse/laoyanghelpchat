@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,507 +15,469 @@
         }
         .card {
             background-color: white;
-            border-radius: 1.5rem; /* 24px */
-            padding: 2.5rem; /* 40px */
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.07);
             border: 1px solid #e5e7eb;
-            transition: all 0.3s ease-in-out;
         }
         .btn-primary {
             background-color: #2c3e50;
             color: white;
-            font-weight: 600;
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.75rem; /* 12px */
-            transition: all 0.2s ease-in-out;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(44, 62, 80, 0.2);
         }
         .btn-primary:hover {
-            background-color: #34495e;
             transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+            box-shadow: 0 6px 20px rgba(44, 62, 80, 0.3);
         }
         .btn-secondary {
-            background-color: #e5e7eb;
-            color: #374151;
-            font-weight: 600;
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.75rem; /* 12px */
-            transition: background-color 0.2s ease-in-out;
+            background-color: #ffffff;
+            color: #2c3e50;
+            border: 1px solid #d1d5db;
+            transition: all 0.3s ease;
         }
         .btn-secondary:hover {
-            background-color: #d1d5db;
+            background-color: #f9fafb;
+            border-color: #9ca3af;
         }
         .btn-tone {
-            border: 2px solid #d1d5db;
-            padding: 0.5rem 1rem;
-            border-radius: 9999px;
-            font-weight: 500;
+            border: 1px solid #d1d5db;
+            color: #4b5563;
             transition: all 0.2s ease-in-out;
-            background-color: white;
-            color: #374151;
         }
-        .btn-tone-active {
+        .btn-tone.selected {
             background-color: #2c3e50;
             color: white;
             border-color: #2c3e50;
         }
-        .upload-box {
-            border: 2px dashed #d1d5db;
-            border-radius: 1rem;
-            padding: 2rem;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            color: #6b7280;
-            transition: border-color 0.2s ease-in-out, background-color 0.2s ease-in-out;
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #2c3e50;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
         }
-        .upload-box.dragover {
-            border-color: #2c3e50;
-            background-color: #f8fafc;
-        }
-        .form-input, .form-textarea, .form-select {
-            border: 1px solid #d1d5db;
-            border-radius: 0.75rem;
-            padding: 0.75rem 1rem;
-            width: 100%;
-            transition: border-color 0.2s, box-shadow 0.2s;
-        }
-        .form-input:focus, .form-textarea:focus, .form-select:focus {
-            outline: none;
-            border-color: #2c3e50;
-            box-shadow: 0 0 0 3px rgba(44, 62, 80, 0.1);
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
         .step-title {
-            font-size: 1.125rem; /* 18px */
+            font-size: 1.125rem;
             font-weight: 600;
-            color: #111827;
+            color: #374151;
             padding-bottom: 0.5rem;
             border-bottom: 1px solid #e5e7eb;
             margin-bottom: 1.5rem;
         }
-        .result-box {
-            background-color: #f8f9fa;
-            border: 1px solid #e9ecef;
-            border-radius: 1rem;
-            padding: 1.5rem;
-            color: #212529;
-            line-height: 1.7;
-        }
-        .spinner {
-            width: 2rem; /* 32px */
-            height: 2rem; /* 32px */
-            border: 4px solid #e5e7eb;
-            border-top-color: #2c3e50;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
     </style>
 </head>
-
-<body class="flex items-center justify-center min-h-screen p-4 sm:p-6 lg:p-8">
-
-    <div id="main-card" class="card w-full max-w-2xl mx-auto">
-        
-        <!-- App Header -->
-        <div id="app-header" class="flex items-center gap-4 mb-8 cursor-pointer">
-            <img src="https://raw.githubusercontent.com/tomyangse/laoyanghelpchat/main/laoyang.jpeg" alt="老杨卡通形象" class="w-16 h-16 rounded-full object-cover border-2 border-white shadow-md">
+<body class="flex items-center justify-center min-h-screen p-4 sm:p-6">
+    <div class="card w-full max-w-2xl p-8 sm:p-12">
+        <!-- Header: now clickable -->
+        <div id="home-button" class="flex items-center space-x-4 mb-8 cursor-pointer" title="返回首页">
+            <img id="avatar" src="https://raw.githubusercontent.com/tomyangse/laoyanghelpchat/main/laoyang.jpeg" alt="老杨卡通形象" class="w-16 h-16 rounded-full object-cover flex-shrink-0">
             <div>
                 <h1 class="text-2xl font-bold text-gray-800">老杨帮你聊</h1>
                 <p class="text-gray-500">主动写信或回复信息，沟通无障碍</p>
             </div>
         </div>
 
-        <!-- Initial Choice Screen -->
-        <div id="choice-screen" class="space-y-6">
-             <h2 class="text-xl font-semibold text-center text-gray-700">请问您需要什么帮助？</h2>
-             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                 <button id="btn-write" class="flex flex-col items-center justify-center p-8 bg-slate-50 hover:bg-slate-100 rounded-2xl transition-all duration-200 border-2 border-transparent hover:border-slate-300">
-                     <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mb-3 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10.5v6m-3-3h6m-1.622-8.378a5.486 5.486 0 11-6.756 0 5.486 5.486 0 016.756 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M12 3c-4.418 0-8 3.134-8 7 0 1.95.834 3.743 2.19 5.093.003.002.005.004.008.006l.006.005a11.95 11.95 0 005.787 2.898 11.95 11.95 0 005.787-2.898l.006-.005.008-.006a8.956 8.956 0 002.19-5.093c0-3.866-3.582-7-8-7z" /></svg>
-                     <span class="text-lg font-semibold text-slate-800">主动写信</span>
-                     <span class="text-sm text-slate-500">给他人发送信息</span>
-                 </button>
-                 <button id="btn-reply" class="flex flex-col items-center justify-center p-8 bg-slate-50 hover:bg-slate-100 rounded-2xl transition-all duration-200 border-2 border-transparent hover:border-slate-300">
-                     <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mb-3 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h10a8 8 0 018 8v2M3 10l6-6m-6 6l6 6" /></svg>
-                     <span class="text-lg font-semibold text-slate-800">回复信息</span>
-                     <span class="text-sm text-slate-500">回复收到的截图</span>
-                 </button>
-             </div>
-        </div>
-
-        <!-- Main Content Area (for both flows) -->
-        <div id="content-area" class="hidden w-full space-y-6">
-            <!-- Flow B: Proactively Write -->
-            <div id="flow-write">
-                <h2 class="step-title">主动写信</h2>
-                <div class="space-y-4">
-                    <div>
-                        <label for="targetLanguage" class="block mb-2 text-sm font-medium text-gray-700">选择目标语言:</label>
-                        <select id="targetLanguage" class="form-select">
-                            <option value="English">英语 (English)</option>
-                            <option value="Spanish">西班牙语 (Spanish)</option>
-                            <option value="French">法语 (French)</option>
-                            <option value="German">德语 (German)</option>
-                            <option value="Japanese">日语 (Japanese)</option>
-                            <option value="Korean">韩语 (Korean)</option>
-                            <option value="Swedish">瑞典语 (Swedish)</option>
-                            <option value="Italian">意大利语 (Italian)</option>
-                            <option value="Russian">俄语 (Russian)</option>
-                            <option value="Portuguese">葡萄牙语 (Portuguese)</option>
-                            <option value="Dutch">荷兰语 (Dutch)</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="userIntentWrite" class="block mb-2 text-sm font-medium text-gray-700">您想写的内容 (用中文输入):</label>
-                        <textarea id="userIntentWrite" rows="5" class="form-textarea" placeholder="例如：你好，我想预约周五下午三点理发。"></textarea>
-                    </div>
-                    <div>
-                         <label class="block mb-2 text-sm font-medium text-gray-700">选择语气:</label>
-                         <div id="tone-selection-write" class="flex flex-wrap gap-2">
-                             <button type="button" class="btn-tone" data-tone="casual">朋友般随意</button>
-                             <button type="button" class="btn-tone" data-tone="friendly">友好标准</button>
-                             <button type="button" class="btn-tone" data-tone="polite">礼貌客气</button>
-                             <button type="button" class="btn-tone" data-tone="business">商务正式</button>
-                         </div>
-                    </div>
-                </div>
-                 <button id="generateMessageBtn" class="btn-primary w-full mt-6">生成信息</button>
-            </div>
-
-            <!-- Flow A: Reply to Message -->
-            <div id="flow-reply">
-                <!-- Step 1-A: Upload Screenshot -->
-                <div id="step1A">
-                    <h2 class="step-title">第一步 上传对话截图</h2>
-                    <div id="upload-box" class="upload-box">
-                        <img id="image-preview" src="" alt="Image preview" class="hidden max-w-full max-h-48 mb-4 rounded-lg"/>
-                        <div id="upload-placeholder">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
-                            <p class="mt-2">点击此处选择图片, 或将图片拖拽到这里</p>
-                            <p class="text-xs text-gray-500 mt-1">支持 PNG, JPG, GIF 等格式</p>
-                        </div>
-                    </div>
-                    <input type="file" id="image-upload" class="hidden" accept="image/*">
-                    <button id="analyzeBtn" class="btn-primary w-full mt-6">老杨马上翻译给您</button>
-                </div>
-                <!-- Step 2: Input Reply Intent -->
-                <div id="step2" class="hidden">
-                     <h2 class="step-title">第二步 这是图片内容</h2>
-                     <div class="space-y-4">
-                        <div class="result-box space-y-2">
-                            <p><strong>检测到语言:</strong> <span id="detected-language"></span></p>
-                            <p><strong>原文内容:</strong> <span id="original-text"></span></p>
-                            <hr class="my-2 border-gray-200">
-                            <p><strong>中文意思:</strong> <span id="translated-text" class="font-semibold"></span></p>
-                        </div>
-                        <div>
-                            <label for="userIntentReply" class="block mb-2 text-sm font-medium text-gray-700">您想回复的内容 (用中文输入):</label>
-                            <textarea id="userIntentReply" rows="4" class="form-textarea" placeholder="例如：好的，没问题！"></textarea>
-                        </div>
-                        <div>
-                            <label class="block mb-2 text-sm font-medium text-gray-700">选择语气:</label>
-                            <div id="tone-selection-reply" class="flex flex-wrap gap-2">
-                                <button type="button" class="btn-tone" data-tone="casual">朋友般随意</button>
-                                <button type="button" class="btn-tone" data-tone="friendly">友好标准</button>
-                                <button type="button" class="btn-tone" data-tone="polite">礼貌客气</button>
-                                <button type="button" class="btn-tone" data-tone="business">商务正式</button>
-                            </div>
-                        </div>
-                     </div>
-                     <button id="generateReplyBtn" class="btn-primary w-full mt-6">生成回复</button>
-                </div>
+        <!-- Step 0: Mode Choice -->
+        <div id="step-choice">
+             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <button id="btn-select-write" class="btn-secondary p-8 rounded-xl flex flex-col items-center justify-center text-center">
+                     <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mb-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
+                    <h3 class="font-semibold text-lg">主动写信</h3>
+                    <p class="text-sm text-gray-500 mt-1">给别人发送新信息</p>
+                </button>
+                <button id="btn-select-reply" class="btn-secondary p-8 rounded-xl flex flex-col items-center justify-center text-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mb-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" /></svg>
+                    <h3 class="font-semibold text-lg">回复信息</h3>
+                    <p class="text-sm text-gray-500 mt-1">根据截图生成回复</p>
+                </button>
             </div>
         </div>
 
-        <!-- Universal Loading Screen -->
-        <div id="loading-screen" class="hidden text-center">
-            <div class="spinner mx-auto"></div>
-            <p id="loading-text" class="mt-4 text-gray-600 font-medium">处理中，请稍候...</p>
-        </div>
-
-        <!-- Universal Result Screen -->
-        <div id="result-screen" class="hidden space-y-6">
-            <h2 class="step-title text-green-600">生成成功！这是为您准备的内容：</h2>
-            <div class="result-box space-y-4">
+        <!-- Mode 1: Write -->
+        <div id="write-mode" class="hidden">
+            <div class="step-title">主动写信</div>
+            <div class="space-y-6">
                 <div>
-                    <div class="flex justify-between items-center mb-1">
-                        <span class="text-sm font-semibold text-gray-600">为您生成的外语内容:</span>
-                        <button id="copyBtn" class="text-sm font-semibold text-[#2c3e50] hover:underline">复制</button>
-                    </div>
-                    <p id="final-reply" class="whitespace-pre-wrap"></p>
+                    <label for="target-language" class="block text-sm font-medium text-gray-700 mb-1">选择目标语言:</label>
+                    <select id="target-language" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="English">英语 (English)</option>
+                        <option value="Spanish">西班牙语 (Spanish)</option>
+                        <option value="French">法语 (French)</option>
+                        <option value="German">德语 (German)</option>
+                        <option value="Japanese">日语 (Japanese)</option>
+                        <option value="Korean">韩语 (Korean)</option>
+                        <option value="Russian">俄语 (Russian)</option>
+                        <option value="Swedish">瑞典语 (Swedish)</option>
+                        <option value="Chinese">中文 (Chinese)</option>
+                    </select>
                 </div>
-                <hr class="border-gray-200">
                 <div>
-                    <span class="text-sm font-semibold text-gray-600">内容的中文意思:</span>
-                    <p id="final-reply-translation" class="mt-1 text-gray-800"></p>
+                    <label for="write-intent" class="block text-sm font-medium text-gray-700 mb-1">您想写的内容 (用中文输入):</label>
+                    <textarea id="write-intent" rows="5" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="例如：你好 Laura，我想问下 Elena 的安抚奶嘴是不是落在学校了..."></textarea>
                 </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">选择语气:</label>
+                    <div id="write-tone-options" class="flex flex-wrap gap-3">
+                         <button data-tone="casual" class="btn-tone px-4 py-2 rounded-lg">朋友般随意</button>
+                        <button data-tone="friendly" class="btn-tone px-4 py-2 rounded-lg">友好标准</button>
+                        <button data-tone="polite" class="btn-tone px-4 py-2 rounded-lg selected">礼貌客气</button>
+                        <button data-tone="business" class="btn-tone px-4 py-2 rounded-lg">商务正式</button>
+                    </div>
+                </div>
+                <button id="btn-generate-message" class="w-full btn-primary font-semibold py-3 rounded-lg">生成信息</button>
             </div>
-            <button id="restartBtn" class="btn-secondary w-full">返回主页</button>
         </div>
 
+        <!-- Mode 2: Reply -->
+        <div id="reply-mode" class="hidden">
+             <!-- Step 1: Upload -->
+            <div id="step1">
+                <div class="step-title">第一步 上传对话截图</div>
+                <div id="drop-zone" class="mt-4 flex justify-center items-center w-full h-48 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+                    <div class="text-center">
+                        <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true"><path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                        <p class="mt-2 text-sm text-gray-500">点击此处选择图片, 或将图片拖拽到这里</p>
+                        <p class="text-xs text-gray-400 mt-1">支持 PNG, JPG, GIF 等格式</p>
+                    </div>
+                    <input type="file" id="file-input" class="hidden" accept="image/*">
+                </div>
+                <div id="image-preview-container" class="mt-4 hidden">
+                    <img id="image-preview" class="max-w-full max-h-64 mx-auto rounded-lg" />
+                </div>
+                <button id="btn-analyze" class="w-full btn-primary font-semibold py-3 rounded-lg mt-6">老杨马上翻译给您</button>
+            </div>
+             <!-- Step 2: Confirm and Reply -->
+            <div id="step2" class="hidden">
+                <div class="step-title">第二步 确认信息并回复</div>
+                <div class="space-y-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">检测到的原文 (<span id="detected-language"></span>):</label>
+                        <p id="original-text" class="mt-1 p-3 bg-gray-100 rounded-lg text-gray-800"></p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">中文意思:</label>
+                        <p id="translation-text" class="mt-1 p-3 bg-gray-100 rounded-lg text-gray-800"></p>
+                    </div>
+                     <div>
+                        <label for="reply-intent" class="block text-sm font-medium text-gray-700">您想回复的内容 (用中文输入):</label>
+                        <textarea id="reply-intent" rows="4" class="w-full mt-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="请输入您的回复意图..."></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">选择语气:</label>
+                        <div id="reply-tone-options" class="flex flex-wrap gap-3">
+                            <button data-tone="casual" class="btn-tone px-4 py-2 rounded-lg">朋友般随意</button>
+                            <button data-tone="friendly" class="btn-tone px-4 py-2 rounded-lg">友好标准</button>
+                            <button data-tone="polite" class="btn-tone px-4 py-2 rounded-lg selected">礼貌客气</button>
+                            <button data-tone="business" class="btn-tone px-4 py-2 rounded-lg">商务正式</button>
+                        </div>
+                    </div>
+                    <button id="btn-generate-reply" class="w-full btn-primary font-semibold py-3 rounded-lg">生成回复</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Result Display -->
+        <div id="result-display" class="hidden">
+            <div class="step-title text-green-600">生成成功! 这是为您准备的信息:</div>
+            <div class="space-y-4">
+                 <div>
+                    <label class="block text-sm font-medium text-gray-700">回复的中文意思:</label>
+                    <p id="final-reply-translation" class="mt-1 p-3 bg-gray-100 rounded-lg text-gray-800 whitespace-pre-wrap"></p>
+                </div>
+                <div class="relative">
+                    <label class="block text-sm font-medium text-gray-700">为您生成的外语信息:</label>
+                    <p id="final-reply" class="mt-1 p-3 bg-green-50 border border-green-200 rounded-lg text-green-900 whitespace-pre-wrap"></p>
+                    <button id="btn-copy" class="absolute top-0 right-0 mt-8 mr-2 px-3 py-1 text-sm bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300">复制</button>
+                </div>
+                 <button id="btn-new-chat" class="w-full btn-secondary font-semibold py-3 rounded-lg">开始新的对话</button>
+            </div>
+        </div>
+
+        <!-- Loading Spinner -->
+        <div id="loading" class="hidden text-center">
+            <div class="loader mx-auto"></div>
+            <p id="loading-text" class="mt-4 text-gray-600">正在为您生成信息...</p>
+        </div>
     </div>
 
     <script>
-        // State management
-        let state = {
-            imageData: null,
-            detectedLanguage: null,
-            originalText: null,
-            activeFlow: null, // 'write' or 'reply'
-        };
-
-        // DOM Elements
-        const choiceScreen = document.getElementById('choice-screen');
-        const contentArea = document.getElementById('content-area');
-        const loadingScreen = document.getElementById('loading-screen');
-        const resultScreen = document.getElementById('result-screen');
-        const appHeader = document.getElementById('app-header');
-
-        // Flow selection buttons
-        const btnWrite = document.getElementById('btn-write');
-        const btnReply = document.getElementById('btn-reply');
-
-        // Flow-specific containers
-        const flowWrite = document.getElementById('flow-write');
-        const flowReply = document.getElementById('flow-reply');
-
-        // Reply Flow Elements
-        const step1A = document.getElementById('step1A');
-        const step2 = document.getElementById('step2');
-        const uploadBox = document.getElementById('upload-box');
-        const imageUpload = document.getElementById('image-upload');
-        const imagePreview = document.getElementById('image-preview');
-        const uploadPlaceholder = document.getElementById('upload-placeholder');
-        const analyzeBtn = document.getElementById('analyzeBtn');
-        const generateReplyBtn = document.getElementById('generateReplyBtn');
-
-        // Write Flow Elements
-        const generateMessageBtn = document.getElementById('generateMessageBtn');
-
-        // Universal Elements
-        const copyBtn = document.getElementById('copyBtn');
-        const restartBtn = document.getElementById('restartBtn');
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- Page Elements ---
+        const homeButton = document.getElementById('home-button');
         
-        // --- Navigation and View Management ---
+        const stepChoice = document.getElementById('step-choice');
+        const writeMode = document.getElementById('write-mode');
+        const replyMode = document.getElementById('reply-mode');
+
+        const btnSelectWrite = document.getElementById('btn-select-write');
+        const btnSelectReply = document.getElementById('btn-select-reply');
+        
+        // --- Reply Mode Elements ---
+        const step1 = document.getElementById('step1');
+        const step2 = document.getElementById('step2');
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('file-input');
+        const imagePreviewContainer = document.getElementById('image-preview-container');
+        const imagePreview = document.getElementById('image-preview');
+        const btnAnalyze = document.getElementById('btn-analyze');
+        const detectedLanguageEl = document.getElementById('detected-language');
+        const originalTextEl = document.getElementById('original-text');
+        const translationTextEl = document.getElementById('translation-text');
+        const replyIntentEl = document.getElementById('reply-intent');
+        const replyToneOptions = document.getElementById('reply-tone-options');
+        const btnGenerateReply = document.getElementById('btn-generate-reply');
+
+        // --- Write Mode Elements ---
+        const targetLanguageEl = document.getElementById('target-language');
+        const writeIntentEl = document.getElementById('write-intent');
+        const writeToneOptions = document.getElementById('write-tone-options');
+        const btnGenerateMessage = document.getElementById('btn-generate-message');
+
+        // --- Common Elements ---
+        const resultDisplay = document.getElementById('result-display');
+        const finalReplyEl = document.getElementById('final-reply');
+        const finalReplyTranslationEl = document.getElementById('final-reply-translation');
+        const btnCopy = document.getElementById('btn-copy');
+        const btnNewChat = document.getElementById('btn-new-chat');
+        const loading = document.getElementById('loading');
+        const loadingText = document.getElementById('loading-text');
+
+        // --- State Variables ---
+        let selectedFile = null;
+        let analysisResult = {};
+        
+        // --- Core Functions ---
         function showScreen(screen) {
-            choiceScreen.classList.add('hidden');
-            contentArea.classList.add('hidden');
-            loadingScreen.classList.add('hidden');
-            resultScreen.classList.add('hidden');
-            screen.classList.remove('hidden');
+            ['step-choice', 'write-mode', 'reply-mode', 'result-display', 'loading'].forEach(id => {
+                document.getElementById(id).style.display = 'none';
+            });
+            screen.style.display = 'block';
         }
 
         function resetApp() {
-            state = { imageData: null, detectedLanguage: null, originalText: null, activeFlow: null };
-            imageUpload.value = '';
+            // Reset states
+            selectedFile = null;
+            analysisResult = {};
+            // Clear inputs and outputs
+            fileInput.value = '';
             imagePreview.src = '';
-            imagePreview.classList.add('hidden');
-            uploadPlaceholder.classList.remove('hidden');
-            document.querySelectorAll('textarea').forEach(ta => ta.value = '');
-            document.querySelectorAll('.btn-tone').forEach(btn => btn.classList.remove('btn-tone-active'));
-            showScreen(choiceScreen);
+            imagePreviewContainer.style.display = 'none';
+            originalTextEl.textContent = '';
+            translationTextEl.textContent = '';
+            replyIntentEl.value = '';
+            writeIntentEl.value = '';
+            finalReplyEl.textContent = '';
+            finalReplyTranslationEl.textContent = '';
+            // Reset UI
+            step1.style.display = 'block';
+            step2.style.display = 'none';
+            showScreen(stepChoice);
         }
 
-        appHeader.addEventListener('click', resetApp);
-        restartBtn.addEventListener('click', resetApp);
+        // --- Event Listeners ---
+        homeButton.addEventListener('click', resetApp);
+        btnSelectWrite.addEventListener('click', () => showScreen(writeMode));
+        btnSelectReply.addEventListener('click', () => showScreen(replyMode));
+        btnNewChat.addEventListener('click', resetApp);
 
-        btnWrite.addEventListener('click', () => {
-            state.activeFlow = 'write';
-            showScreen(contentArea);
-            flowWrite.classList.remove('hidden');
-            flowReply.classList.add('hidden');
-        });
-
-        btnReply.addEventListener('click', () => {
-            state.activeFlow = 'reply';
-            showScreen(contentArea);
-            flowWrite.classList.add('hidden');
-            flowReply.classList.remove('hidden');
-            step1A.classList.remove('hidden');
-            step2.classList.add('hidden');
-        });
-
-        // --- Tone Selection Logic (Universal) ---
-        document.querySelectorAll('.btn-tone').forEach(button => {
-            button.addEventListener('click', () => {
-                const parent = button.parentElement;
-                parent.querySelectorAll('.btn-tone').forEach(btn => {
-                    btn.classList.remove('btn-tone-active');
-                });
-                button.classList.add('btn-tone-active');
+        // --- Tone Selection Logic ---
+        function handleToneSelection(container) {
+            container.addEventListener('click', (e) => {
+                if (e.target.tagName === 'BUTTON') {
+                    // Remove 'selected' from all buttons in the container
+                    container.querySelectorAll('button').forEach(btn => btn.classList.remove('selected'));
+                    // Add 'selected' to the clicked button
+                    e.target.classList.add('selected');
+                }
             });
-        });
-
-        // --- Reply Flow Logic (Image Upload & Analysis) ---
-        function handleFile(file) {
-            if (file && file.type.startsWith('image/')) {
-                const reader = new FileReader();
-                reader.onload = e => {
-                    state.imageData = e.target.result.split(',')[1];
-                    imagePreview.src = e.target.result;
-                    imagePreview.classList.remove('hidden');
-                    uploadPlaceholder.classList.add('hidden');
-                };
-                reader.readAsDataURL(file);
-            }
         }
+        handleToneSelection(writeToneOptions);
+        handleToneSelection(replyToneOptions);
         
-        uploadBox.addEventListener('click', () => imageUpload.click());
-        imageUpload.addEventListener('change', (e) => handleFile(e.target.files[0]));
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            uploadBox.addEventListener(eventName, e => {
-                e.preventDefault();
-                e.stopPropagation();
-            }, false);
-        });
-        ['dragenter', 'dragover'].forEach(eventName => {
-            uploadBox.addEventListener(eventName, () => uploadBox.classList.add('dragover'));
-        });
-        ['dragleave', 'drop'].forEach(eventName => {
-            uploadBox.addEventListener(eventName, () => uploadBox.classList.remove('dragover'));
-        });
-        uploadBox.addEventListener('drop', e => handleFile(e.dataTransfer.files[0]));
+        function getSelectedTone(container) {
+             const selectedBtn = container.querySelector('button.selected');
+             return selectedBtn ? selectedBtn.dataset.tone : null;
+        }
 
-        analyzeBtn.addEventListener('click', async () => {
-            if (!state.imageData) {
-                alert('请先上传图片！');
+        // --- Reply Mode Logic ---
+        dropZone.addEventListener('click', () => fileInput.click());
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('bg-blue-50', 'border-blue-400');
+        });
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('bg-blue-50', 'border-blue-400');
+        });
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('bg-blue-50', 'border-blue-400');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+
+        function handleFile(file) {
+            selectedFile = file;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                imagePreview.src = e.target.result;
+                imagePreviewContainer.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        btnAnalyze.addEventListener('click', async () => {
+            if (!selectedFile) {
+                alert('请先选择或拖拽一张图片。');
                 return;
             }
-            document.getElementById('loading-text').textContent = '正在识别和翻译图片...';
-            showScreen(loadingScreen);
+            loadingText.textContent = '正在分析图片内容...';
+            showScreen(loading);
 
-            try {
-                const response = await fetch('/api/analyzeImage', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ image: state.imageData }),
-                });
-                if (!response.ok) throw new Error(`服务器错误: ${response.statusText}`);
-                const data = await response.json();
+            const reader = new FileReader();
+            reader.readAsDataURL(selectedFile);
+            reader.onloadend = async () => {
+                const base64String = reader.result.split(',')[1];
+                try {
+                    const response = await fetch('/api/analyzeImage', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ image: base64String }),
+                    });
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || '服务器错误');
+                    }
+                    analysisResult = await response.json();
+                    detectedLanguageEl.textContent = analysisResult.language;
+                    originalTextEl.textContent = analysisResult.text;
+                    translationTextEl.textContent = analysisResult.translation;
+                    step1.style.display = 'none';
+                    step2.style.display = 'block';
+                    showScreen(replyMode);
 
-                state.detectedLanguage = data.language;
-                state.originalText = data.text;
-                document.getElementById('detected-language').textContent = data.language;
-                document.getElementById('original-text').textContent = data.text;
-                document.getElementById('translated-text').textContent = data.translation;
-                
-                step1A.classList.add('hidden');
-                step2.classList.remove('hidden');
-                showScreen(contentArea);
-
-            } catch (error) {
-                console.error('Analyze image error:', error);
-                alert(`分析图片失败: ${error.message}`);
-                showScreen(contentArea); // Go back to the upload screen
-            }
+                } catch (error) {
+                    alert(`分析失败: ${error.message}`);
+                    showScreen(replyMode);
+                }
+            };
         });
 
-        // --- Reply Flow Logic (Generate Reply) ---
-        generateReplyBtn.addEventListener('click', async () => {
-            const userIntent = document.getElementById('userIntentReply').value;
-            const selectedToneEl = document.querySelector('#tone-selection-reply .btn-tone-active');
-            const tone = selectedToneEl ? selectedToneEl.dataset.tone : null;
+        btnGenerateReply.addEventListener('click', async () => {
+            const userIntent = replyIntentEl.value.trim();
+            const selectedTone = getSelectedTone(replyToneOptions);
 
-            if (!userIntent || !tone) {
-                alert('请填写回复内容并选择一个语气！');
+            if (!userIntent) {
+                alert('请输入您想回复的内容。');
                 return;
             }
-            
-            document.getElementById('loading-text').textContent = '正在为您生成回复...';
-            showScreen(loadingScreen);
+            if (!selectedTone) {
+                alert('请选择一个语气。');
+                return;
+            }
+
+            loadingText.textContent = '正在为您生成回复...';
+            showScreen(loading);
 
             try {
-                 const response = await fetch('/api/generateReply', {
+                const response = await fetch('/api/generateReply', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        originalText: state.originalText,
-                        language: state.detectedLanguage,
+                        originalText: analysisResult.text,
+                        language: analysisResult.language,
                         userIntent: userIntent,
-                        tone: tone
+                        tone: selectedTone,
                     }),
                 });
-                 if (!response.ok) throw new Error(`服务器错误: ${response.statusText}`);
-                 const data = await response.json();
-                 
-                 document.getElementById('final-reply').textContent = data.reply;
-                 document.getElementById('final-reply-translation').textContent = data.replyTranslation;
-                 showScreen(resultScreen);
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || '服务器错误');
+                }
+                const data = await response.json();
+                finalReplyEl.textContent = data.reply;
+                finalReplyTranslationEl.textContent = data.replyTranslation;
+                showScreen(resultDisplay);
 
             } catch (error) {
-                console.error('Generate reply error:', error);
                 alert(`生成回复失败: ${error.message}`);
-                showScreen(contentArea); // Go back to the reply input screen
+                showScreen(replyMode);
             }
         });
 
-        // --- Write Flow Logic (Generate Message) ---
-        generateMessageBtn.addEventListener('click', async () => {
-            const targetLanguage = document.getElementById('targetLanguage').value;
-            const userIntent = document.getElementById('userIntentWrite').value;
-            const selectedToneEl = document.querySelector('#tone-selection-write .btn-tone-active');
-            const tone = selectedToneEl ? selectedToneEl.dataset.tone : null;
+        // --- Write Mode Logic ---
+        btnGenerateMessage.addEventListener('click', async () => {
+            const targetLanguage = targetLanguageEl.value;
+            const userIntent = writeIntentEl.value.trim();
+            const selectedTone = getSelectedTone(writeToneOptions);
 
-            if (!targetLanguage || !userIntent || !tone) {
-                alert('请选择目标语言、填写内容并选择一个语气！');
+            if (!userIntent) {
+                alert('请输入您想写的内容。');
                 return;
             }
-            
-            document.getElementById('loading-text').textContent = '正在为您生成信息...';
-            showScreen(loadingScreen);
+             if (!selectedTone) {
+                alert('请选择一个语气。');
+                return;
+            }
 
+            loadingText.textContent = '正在为您生成信息...';
+            showScreen(loading);
+            
             try {
-                const response = await fetch('/api/generateMessage', {
+                 const response = await fetch('/api/generateMessage', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         targetLanguage,
                         userIntent,
-                        tone
+                        tone: selectedTone
                     }),
                 });
-                if (!response.ok) throw new Error(`服务器错误: ${response.statusText}`);
-                const data = await response.json();
 
-                document.getElementById('final-reply').textContent = data.reply;
-                document.getElementById('final-reply-translation').textContent = data.replyTranslation;
-                showScreen(resultScreen);
+                 if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || '服务器错误');
+                }
+                const data = await response.json();
+                finalReplyEl.textContent = data.reply;
+                finalReplyTranslationEl.textContent = data.replyTranslation;
+                showScreen(resultDisplay);
 
             } catch (error) {
-                console.error('Generate message error:', error);
                 alert(`生成信息失败: ${error.message}`);
-                showScreen(contentArea); // Go back to the write form
+                showScreen(writeMode);
             }
-        });
-        
-        // --- Universal Result Logic ---
-        copyBtn.addEventListener('click', () => {
-            const textToCopy = document.getElementById('final-reply').textContent;
-            
-            // Fallback for older browsers
-            const textArea = document.createElement("textarea");
-            textArea.value = textToCopy;
-            textArea.style.position="fixed"; //avoid scrolling to bottom
-            document.body.appendChild(textArea);
-            textArea.focus();
-            textArea.select();
-            try {
-                document.execCommand('copy');
-                copyBtn.textContent = '已复制!';
-                setTimeout(() => { copyBtn.textContent = '复制'; }, 2000);
-            } catch (err) {
-                console.error('Fallback: Oops, unable to copy', err);
-            }
-            document.body.removeChild(textArea);
         });
 
+        // --- Copy Button ---
+        btnCopy.addEventListener('click', () => {
+            const textToCopy = finalReplyEl.textContent;
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                btnCopy.textContent = '已复制!';
+                setTimeout(() => {
+                    btnCopy.textContent = '复制';
+                }, 2000);
+            }).catch(err => {
+                console.error('复制失败: ', err);
+                alert('复制失败，请手动复制。');
+            });
+        });
+        
+        // --- Initial State ---
+        resetApp();
+    });
     </script>
 </body>
 </html>
