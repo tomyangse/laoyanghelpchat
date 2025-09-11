@@ -37,7 +37,8 @@ export default async function handler(req, res) {
         }
 
         const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-        const model = genAI.getGenerativeModel({ model: "gemini-pro-vision" });
+        // UPDATED MODEL NAME
+        const model = genAI.getGenerativeModel({ model: "gemini-1.0-pro-vision-latest" });
 
         const prompt = "从这张图片中提取所有文字。然后，判断这些文字是什么语言（例如：English, Spanish, Chinese）。最后，将提取的文字翻译成简体中文。请以JSON格式返回结果，包含三个字段：'text' (提取的原文), 'language' (检测到的语言), 和 'translation' (中文翻译)。";
         
