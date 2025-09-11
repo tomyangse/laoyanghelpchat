@@ -1,89 +1,58 @@
 // Vercel Serverless Function
-// This function handles the image analysis.
-// It receives a base64 encoded image, sends it to the Gemini API,
-// and returns the extracted text, language, and Chinese translation.
+// Handles image analysis: OCR, language detection, and translation.
 
-export const config = {
-    maxDuration: 60, // Allow up to 60 seconds for the function to run
-};
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
-export default async function handler(request, response) {
-    if (request.method !== 'POST') {
-        return response.status(405).json({ error: 'Method Not Allowed' });
+// 移除了 Vercel Edge Runtime 的配置，使用默认的 Node.js 环境
+
+export default async function handler(req) {
+    if (req.method !== 'POST') {
+        return new Response(JSON.stringify({ error: 'Method not allowed' }), {
+            status: 405,
+            headers: { 'Content-Type': 'application/json' },
+        });
     }
 
     try {
-        const { image } = request.body;
-        if (!image) {
-            return response.status(400).json({ error: 'No image data provided.' });
+        const { image: base64ImageData } = await req.json();
+        if (!base64ImageData) {
+            return new Response(JSON.stringify({ error: 'No image data provided' }), {
+                status: 400,
+                headers: { 'Content-Type': 'application/json' },
+            });
         }
 
-        const apiKey = process.env.GEMINI_API_KEY;
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+        const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+        const model = genAI.getGenerativeModel({ model: "gemini-pro-vision" });
 
-        // Construct the prompt for Gemini
-        const prompt = `
-            Analyze the following image which contains a text conversation.
-            1. Extract all text from the image.
-            2. Identify the language of the extracted text.
-            3. Translate the extracted text into Simplified Chinese (中文).
-            4. Provide the response as a valid JSON object with the following keys: "language", "originalText", "translatedText".
-            
-            Example response format:
-            {
-              "language": "Swedish",
-              "originalText": "Ska vi ta en fika imorgon?",
-              "translatedText": "我们明天要不要一起喝杯咖啡？"
-            }
-        `;
-
-        // Construct the payload for Gemini API
-        const payload = {
-            contents: [
-                {
-                    parts: [
-                        { text: prompt },
-                        {
-                            inline_data: {
-                                mime_type: "image/jpeg", // Assuming jpeg, png is also common
-                                data: image
-                            }
-                        }
-                    ]
-                }
-            ],
-            generationConfig: {
-              responseMimeType: "application/json",
-            }
-        };
+        const prompt = "请从这张图片中提取所有文字，然后判断这些文字是什么语言（例如：English, Spanish, Chinese），最后将提取的文字内容翻译成通顺的中文。请严格按照以下JSON格式返回，不要有任何多余的解释：{\"language\": \"识别出的语言\", \"originalText\": \"提取的原文\", \"translatedText\": \"翻译后的中文\"}";
         
-        const apiResponse = await fetch(apiUrl, {
-            method: 'POST',
+        const imagePart = {
+            inlineData: {
+                data: base64ImageData,
+                mimeType: "image/jpeg",
+            },
+        };
+
+        const result = await model.generateContent([prompt, imagePart]);
+        const response = await result.response;
+        const text = await response.text();
+        
+        // 清理并解析AI返回的JSON字符串
+        const cleanedText = text.replace(/```json/g, '').replace(/```/g, '').trim();
+        const parsedResult = JSON.parse(cleanedText);
+
+        return new Response(JSON.stringify(parsedResult), {
+            status: 200,
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
         });
 
-        if (!apiResponse.ok) {
-            const errorBody = await apiResponse.text();
-            console.error('Gemini API Error:', errorBody);
-            throw new Error(`Gemini API failed with status: ${apiResponse.status}`);
-        }
-
-        const result = await apiResponse.json();
-        
-        // Extract the JSON text from the response
-        const candidate = result.candidates?.[0];
-        if (!candidate || !candidate.content?.parts?.[0]?.text) {
-          throw new Error('Invalid response structure from Gemini API.');
-        }
-
-        // The model should return a JSON string, so we parse it.
-        const parsedResult = JSON.parse(candidate.content.parts[0].text);
-        
-        return response.status(200).json(parsedResult);
-
     } catch (error) {
-        console.error('Error in analyzeImage handler:', error);
-        return response.status(500).json({ error: error.message || 'An internal server error occurred.' });
+        console.error("Error in analyzeImage API:", error);
+        return new Response(JSON.stringify({ error: 'Failed to analyze image.', details: error.message }), {
+            status: 500,
+            headers: { 'Content-Type': 'application/json' },
+        });
     }
 }
+
