@@ -3,8 +3,6 @@
 
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-// 移除了 Vercel Edge Runtime 的配置，使用默认的 Node.js 环境
-
 export default async function handler(req) {
     if (req.method !== 'POST') {
         return new Response(JSON.stringify({ error: 'Method not allowed' }), {
@@ -49,11 +47,11 @@ ${toneInstruction}
 请直接生成 ${targetLanguage} 的信息内容，不要包含任何额外的解释或标题。`;
 
         const generationResult = await model.generateContent(generationPrompt);
-        const generatedMessage = (await generationResult.response).text();
+        const generatedMessage = generationResult.response.text();
 
         const translationPrompt = `请将以下 ${targetLanguage} 文本翻译成自然流畅的中文：\n\n"${generatedMessage}"`;
         const translationResult = await model.generateContent(translationPrompt);
-        const translatedMessage = (await translationResult.response).text();
+        const translatedMessage = translationResult.response.text();
 
         return new Response(JSON.stringify({
             reply: generatedMessage.trim(),
