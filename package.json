@@ -1,0 +1,8 @@
+{
+  "name": "laoyang-chat-helper",
+  "version": "1.0.0",
+  "description": "AI chat assistant",
+  "dependencies": {
+    "@google/generative-ai": "^0.14.1"
+  }
+}
