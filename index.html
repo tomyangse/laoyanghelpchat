@@ -3,28 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>老杨帮你聊 - 智能信息回复助手</title>
+    <title>老杨帮你聊 - 智能信息沟通助手</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        /* * 设计理念: 北欧极简风格 (Nordic Minimalist)
-         * 1. 色彩: 采用低饱和度的中性色调，营造宁静、专业的氛围。主色调为深灰蓝，辅以不同层次的灰色。
-         * 2. 字体: Inter (英文) 和 Noto Sans SC (中文) 提供了极佳的现代感和可读性。
-         * 3. 布局: 增加元素间距 (Whitespace)，创造呼吸感，让视觉焦点更清晰。
-         * 4. 组件: 按钮、输入框等元素采用更柔和的圆角和细致的边框，提升精致感。
-        */
         body {
             font-family: 'Inter', 'Noto Sans SC', sans-serif;
-            background-color: #f4f7f9; /* 柔和的浅灰色背景 */
+            background-color: #f4f7f9;
         }
         .card {
             background-color: #ffffff;
-            border: 1px solid #e5e7eb; /* 细致的边框 */
+            border: 1px solid #e5e7eb;
         }
         .btn-primary {
-            background-color: #2c3e50; /* 深灰蓝主色调 */
+            background-color: #2c3e50;
             color: white;
             transition: all 0.3s ease;
             box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
@@ -59,6 +53,15 @@
             color: white;
             border-color: #2c3e50;
         }
+        .choice-card {
+            border: 1px solid #e5e7eb;
+            transition: all 0.3s ease;
+        }
+        .choice-card:hover {
+            border-color: #2c3e50;
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-4">
@@ -67,187 +70,242 @@
         <div class="card rounded-2xl shadow-xl p-8 md:p-10 space-y-8">
             
             <!-- Header -->
-            <div class="flex justify-center items-center gap-4 sm:gap-6">
-                <img src="https://raw.githubusercontent.com/tomyangse/laoyanghelpchat/main/laoyang.jpeg" alt="老杨卡通形象" class="h-20 w-20 rounded-full object-cover border-2 border-white shadow-md">
-                <div class="text-left">
+            <div class="flex items-center gap-4 sm:gap-6">
+                <img src="https://raw.githubusercontent.com/tomyangse/laoyanghelpchat/main/laoyang.jpeg" alt="老杨卡通形象" class="h-20 w-20 rounded-full object-cover border-2 border-white shadow-md cursor-pointer" id="homeBtn">
+                <div>
                     <h1 class="text-4xl font-bold text-gray-800">老杨帮你聊</h1>
-                    <p class="text-gray-500 mt-1 text-lg">上传对话截图，轻松回复每一条信息</p>
+                    <p class="text-gray-500 mt-1 text-lg">主动写信或回复信息，沟通无障碍</p>
                 </div>
             </div>
 
-            <!-- Step 1: Image Upload -->
-            <div id="step1">
-                <div class="space-y-2 mb-4">
-                    <p class="text-sm font-semibold text-gray-500 tracking-wide uppercase">第一步</p>
-                    <h2 class="text-xl font-semibold text-gray-800">上传对话截图</h2>
-                </div>
-                <div class="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center cursor-pointer hover:border-gray-400 transition" id="dropzone">
-                    <input type="file" id="imageUpload" class="hidden" accept="image/*">
-                    <div id="upload-prompt">
-                        <svg class="mx-auto h-12 w-12 text-gray-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0l-3-3.75 3.75M12 9.75l3.75 3.75M3 17.25V6.75A2.25 2.25 0 015.25 4.5h13.5A2.25 2.25 0 0121 6.75v10.5A2.25 2.25 0 0118.75 19.5H5.25A2.25 2.25 0 013 17.25z" />
-                        </svg>
-                        <p class="mt-4 text-sm text-gray-600">点击此处选择图片，或将图片拖拽到这里</p>
-                        <p class="text-xs text-gray-400 mt-1">支持 PNG, JPG, GIF 等格式</p>
-                    </div>
-                    <img id="imagePreview" src="" alt="Image Preview" class="hidden max-h-48 mx-auto rounded-lg shadow-md"/>
-                </div>
-                <button id="analyzeBtn" class="w-full btn-primary font-bold py-3 px-4 rounded-lg mt-6 text-base" disabled>
-                    老杨马上翻译给您
-                </button>
-            </div>
+            <!-- Main Content Area -->
+            <div id="content-area">
 
-            <!-- Loading Spinner -->
-            <div id="loader" class="hidden text-center py-12">
-                <div role="status" class="flex flex-col items-center">
-                    <svg aria-hidden="true" class="w-12 h-12 text-gray-300 animate-spin fill-[#2c3e50]" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/>
-                        <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367tes41 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0492C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/>
-                    </svg>
-                    <p class="mt-4 text-gray-500">AI 正在努力分析，请稍候...</p>
-                </div>
-            </div>
-
-            <!-- Step 2: Analysis Result -->
-            <div id="step2" class="hidden space-y-8">
-                 <div class="space-y-2">
-                    <p class="text-sm font-semibold text-gray-500 tracking-wide uppercase">第二步</p>
-                    <h2 class="text-xl font-semibold text-gray-800">确认信息并准备回复</h2>
-                </div>
-                <div class="space-y-4 p-5 bg-gray-50 rounded-lg border border-gray-200">
-                    <div class="flex items-start">
-                        <strong class="text-gray-500 w-24 shrink-0">识别语言：</strong> <span id="language" class="font-semibold text-gray-800"></span>
-                    </div>
-                     <div class="flex items-start">
-                        <strong class="text-gray-500 w-24 shrink-0">原文内容：</strong> <span id="originalText" class="text-gray-700"></span>
-                    </div>
-                     <div class="flex items-start">
-                        <strong class="text-gray-500 w-24 shrink-0">中文意思：</strong> <span id="translatedText" class="text-gray-800 font-semibold"></span>
-                    </div>
-                </div>
-
-                <div class="space-y-4">
-                    <div>
-                        <label for="replyIntent" class="block font-medium text-gray-700 mb-2">您想回复的内容（用中文输入）：</label>
-                        <textarea id="replyIntent" rows="3" class="w-full border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-[#2c3e50] focus:border-[#2c3e50] transition" placeholder="例如：好啊，下午2点可以吗？"></textarea>
-                    </div>
-                    <div>
-                        <label class="block font-medium text-gray-700 mb-2">选择回复语气：</label>
-                        <div class="flex flex-wrap gap-3" id="tone-options">
-                            <button class="btn-tone px-4 py-2 rounded-lg text-sm" data-tone="casual">朋友般随意</button>
-                            <button class="btn-tone px-4 py-2 rounded-lg text-sm" data-tone="friendly">友好标准</button>
-                            <button class="btn-tone px-4 py-2 rounded-lg text-sm" data-tone="polite">礼貌客气</button>
-                            <button class="btn-tone px-4 py-2 rounded-lg text-sm" data-tone="business">商务正式</button>
+                <!-- Start Screen -->
+                <div id="start-screen">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-6 text-center">请选择您需要的功能：</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Option 1: Proactively Write -->
+                        <div id="start-write-btn" class="choice-card p-6 rounded-lg text-center cursor-pointer">
+                            <svg class="w-12 h-12 mx-auto text-[#2c3e50]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" /></svg>
+                            <h3 class="text-lg font-bold mt-4 text-gray-800">主动写信</h3>
+                            <p class="text-sm text-gray-500 mt-1">给他人发送一封新信息</p>
+                        </div>
+                        <!-- Option 2: Reply to Message -->
+                        <div id="start-reply-btn" class="choice-card p-6 rounded-lg text-center cursor-pointer">
+                            <svg class="w-12 h-12 mx-auto text-[#2c3e50]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" /></svg>
+                            <h3 class="text-lg font-bold mt-4 text-gray-800">回复信息</h3>
+                            <p class="text-sm text-gray-500 mt-1">上传截图，回复他人信息</p>
                         </div>
                     </div>
                 </div>
-                 <button id="generateBtn" class="w-full btn-primary font-bold py-3 px-4 rounded-lg text-base">
-                    生成回复
-                </button>
-            </div>
 
-            <!-- Step 3: Generated Reply -->
-            <div id="step3" class="hidden space-y-6">
-                <h2 class="text-xl font-semibold text-gray-800 flex items-center">
-                    <svg class="w-6 h-6 text-green-500 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    生成成功！这是为您准备的回复
-                </h2>
-                <div class="p-5 bg-gray-50 rounded-lg relative border border-gray-200">
-                    <div class="space-y-3">
+                <!-- Write Flow Container -->
+                <div id="write-flow-container" class="hidden space-y-8">
+                    <div class="space-y-2">
+                        <p class="text-sm font-semibold text-gray-500 tracking-wide uppercase">主动写信</p>
+                        <h2 class="text-xl font-semibold text-gray-800">告诉AI您想写的内容</h2>
+                    </div>
+                    <div class="space-y-4">
                         <div>
-                            <p class="text-sm text-gray-500 mb-1">回复的中文意思：</p>
-                            <p id="replyTranslationDisplay" class="text-gray-700"></p>
+                            <label for="targetLanguage" class="block font-medium text-gray-700 mb-2">选择目标语言：</label>
+                            <select id="targetLanguage" class="w-full border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-[#2c3e50] focus:border-[#2c3e50] transition">
+                                <option value="English">英语 (English)</option>
+                                <option value="Spanish">西班牙语 (Spanish)</option>
+                                <option value="French">法语 (French)</option>
+                                <option value="German">德语 (German)</option>
+                                <option value="Japanese">日语 (Japanese)</option>
+                                <option value="Korean">韩语 (Korean)</option>
+                                <option value="Russian">俄语 (Russian)</option>
+                                <option value="Swedish">瑞典语 (Swedish)</option>
+                                <option value="Italian">意大利语 (Italian)</option>
+                                <option value="Portuguese">葡萄牙语 (Portuguese)</option>
+                            </select>
                         </div>
-                        <hr class="border-gray-200">
                         <div>
-                            <p class="text-sm text-gray-500 mb-1">最终回复：</p>
-                            <p id="finalReply" class="text-gray-900 text-lg font-semibold"></p>
+                            <label for="writeIntent" class="block font-medium text-gray-700 mb-2">您想写的内容（用中文输入）：</label>
+                            <textarea id="writeIntent" rows="4" class="w-full border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-[#2c3e50] focus:border-[#2c3e50] transition" placeholder="例如：我想询问一下明天会议的日程安排。"></textarea>
+                        </div>
+                        <div>
+                            <label class="block font-medium text-gray-700 mb-2">选择语气：</label>
+                            <div class="flex flex-wrap gap-3" id="write-tone-options">
+                                <button class="btn-tone px-4 py-2 rounded-lg text-sm" data-tone="casual">朋友般随意</button>
+                                <button class="btn-tone px-4 py-2 rounded-lg text-sm" data-tone="friendly">友好标准</button>
+                                <button class="btn-tone px-4 py-2 rounded-lg text-sm" data-tone="polite">礼貌客气</button>
+                                <button class="btn-tone px-4 py-2 rounded-lg text-sm" data-tone="business">商务正式</button>
+                            </div>
                         </div>
                     </div>
-                    <button id="copyBtn" class="absolute top-4 right-4 btn-secondary px-3 py-1 text-sm rounded-md">复制</button>
+                    <button id="generateWriteBtn" class="w-full btn-primary font-bold py-3 px-4 rounded-lg text-base">生成信息</button>
                 </div>
-                <button id="resetBtn" class="w-full btn-secondary font-bold py-3 px-4 rounded-lg text-base">
-                    开始新的对话
-                </button>
+
+                <!-- Reply Flow Container -->
+                <div id="reply-flow-container" class="hidden">
+                    <!-- Step 1: Image Upload -->
+                    <div id="step1">
+                        <div class="space-y-2 mb-4">
+                            <p class="text-sm font-semibold text-gray-500 tracking-wide uppercase">第一步</p>
+                            <h2 class="text-xl font-semibold text-gray-800">上传对话截图</h2>
+                        </div>
+                        <div class="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center cursor-pointer hover:border-gray-400 transition" id="dropzone">
+                            <input type="file" id="imageUpload" class="hidden" accept="image/*">
+                            <div id="upload-prompt">
+                                <svg class="mx-auto h-12 w-12 text-gray-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0l-3-3.75 3.75M12 9.75l3.75 3.75M3 17.25V6.75A2.25 2.25 0 015.25 4.5h13.5A2.25 2.25 0 0121 6.75v10.5A2.25 2.25 0 0118.75 19.5H5.25A2.25 2.25 0 013 17.25z" /></svg>
+                                <p class="mt-4 text-sm text-gray-600">点击此处选择图片，或将图片拖拽到这里</p>
+                                <p class="text-xs text-gray-400 mt-1">支持 PNG, JPG, GIF 等格式</p>
+                            </div>
+                            <img id="imagePreview" src="" alt="Image Preview" class="hidden max-h-48 mx-auto rounded-lg shadow-md"/>
+                        </div>
+                        <button id="analyzeBtn" class="w-full btn-primary font-bold py-3 px-4 rounded-lg mt-6 text-base" disabled>老杨马上翻译给您</button>
+                    </div>
+                    <!-- Step 2: Analysis Result -->
+                    <div id="step2" class="hidden space-y-8">
+                         <div class="space-y-2">
+                            <p class="text-sm font-semibold text-gray-500 tracking-wide uppercase">第二步</p>
+                            <h2 class="text-xl font-semibold text-gray-800">确认信息并准备回复</h2>
+                        </div>
+                        <div class="space-y-4 p-5 bg-gray-50 rounded-lg border border-gray-200">
+                            <div class="flex items-start"><strong class="text-gray-500 w-24 shrink-0">识别语言：</strong> <span id="language" class="font-semibold text-gray-800"></span></div>
+                            <div class="flex items-start"><strong class="text-gray-500 w-24 shrink-0">原文内容：</strong> <span id="originalText" class="text-gray-700"></span></div>
+                            <div class="flex items-start"><strong class="text-gray-500 w-24 shrink-0">中文意思：</strong> <span id="translatedText" class="text-gray-800 font-semibold"></span></div>
+                        </div>
+                        <div class="space-y-4">
+                            <div>
+                                <label for="replyIntent" class="block font-medium text-gray-700 mb-2">您想回复的内容（用中文输入）：</label>
+                                <textarea id="replyIntent" rows="3" class="w-full border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-[#2c3e50] focus:border-[#2c3e50] transition" placeholder="例如：好啊，下午2点可以吗？"></textarea>
+                            </div>
+                            <div>
+                                <label class="block font-medium text-gray-700 mb-2">选择回复语气：</label>
+                                <div class="flex flex-wrap gap-3" id="reply-tone-options">
+                                    <button class="btn-tone px-4 py-2 rounded-lg text-sm" data-tone="casual">朋友般随意</button>
+                                    <button class="btn-tone px-4 py-2 rounded-lg text-sm" data-tone="friendly">友好标准</button>
+                                    <button class="btn-tone px-4 py-2 rounded-lg text-sm" data-tone="polite">礼貌客气</button>
+                                    <button class="btn-tone px-4 py-2 rounded-lg text-sm" data-tone="business">商务正式</button>
+                                </div>
+                            </div>
+                        </div>
+                         <button id="generateReplyBtn" class="w-full btn-primary font-bold py-3 px-4 rounded-lg text-base">生成回复</button>
+                    </div>
+                </div>
+
+                <!-- Common Elements -->
+                <div id="loader" class="hidden text-center py-12">
+                     <div role="status" class="flex flex-col items-center">
+                        <svg aria-hidden="true" class="w-12 h-12 text-gray-300 animate-spin fill-[#2c3e50]" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/><path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0492C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/></svg>
+                        <p id="loader-text" class="mt-4 text-gray-500">AI 正在努力分析，请稍候...</p>
+                    </div>
+                </div>
+                <div id="step3" class="hidden space-y-6">
+                    <h2 class="text-xl font-semibold text-gray-800 flex items-center">
+                        <svg class="w-6 h-6 text-green-500 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        生成成功！这是为您准备的回复
+                    </h2>
+                    <div class="p-5 bg-gray-50 rounded-lg relative border border-gray-200">
+                        <div class="space-y-3">
+                            <div><p class="text-sm text-gray-500 mb-1">回复的中文意思：</p><p id="replyTranslationDisplay" class="text-gray-700"></p></div>
+                            <hr class="border-gray-200">
+                            <div><p class="text-sm text-gray-500 mb-1">最终回复：</p><p id="finalReply" class="text-gray-900 text-lg font-semibold"></p></div>
+                        </div>
+                        <button id="copyBtn" class="absolute top-4 right-4 btn-secondary px-3 py-1 text-sm rounded-md">复制</button>
+                    </div>
+                    <button id="resetBtn" class="w-full btn-secondary font-bold py-3 px-4 rounded-lg text-base">返回主页</button>
+                </div>
+                <div id="error-message" class="hidden p-4 bg-red-50 text-red-700 rounded-lg border border-red-200"></div>
             </div>
-            
-            <!-- Error Message -->
-            <div id="error-message" class="hidden p-4 bg-red-50 text-red-700 rounded-lg border border-red-200"></div>
 
         </div>
     </div>
 
     <script>
         // DOM Elements
+        const homeBtn = document.getElementById('homeBtn');
+        const contentArea = document.getElementById('content-area');
+        const startScreen = document.getElementById('start-screen');
+        const startWriteBtn = document.getElementById('start-write-btn');
+        const startReplyBtn = document.getElementById('start-reply-btn');
+        
+        const writeFlowContainer = document.getElementById('write-flow-container');
+        const targetLanguageEl = document.getElementById('targetLanguage');
+        const writeIntentEl = document.getElementById('writeIntent');
+        const writeToneOptions = document.getElementById('write-tone-options');
+        const generateWriteBtn = document.getElementById('generateWriteBtn');
+
+        const replyFlowContainer = document.getElementById('reply-flow-container');
         const step1 = document.getElementById('step1');
         const step2 = document.getElementById('step2');
-        const step3 = document.getElementById('step3');
-        const loader = document.getElementById('loader');
-        const errorMessage = document.getElementById('error-message');
-        
         const dropzone = document.getElementById('dropzone');
         const imageUpload = document.getElementById('imageUpload');
         const uploadPrompt = document.getElementById('upload-prompt');
         const imagePreview = document.getElementById('imagePreview');
         const analyzeBtn = document.getElementById('analyzeBtn');
-        
         const languageEl = document.getElementById('language');
         const originalTextEl = document.getElementById('originalText');
         const translatedTextEl = document.getElementById('translatedText');
-        
         const replyIntentEl = document.getElementById('replyIntent');
-        const toneOptions = document.getElementById('tone-options');
-        const generateBtn = document.getElementById('generateBtn');
-        
+        const replyToneOptions = document.getElementById('reply-tone-options');
+        const generateReplyBtn = document.getElementById('generateReplyBtn');
+
+        const loader = document.getElementById('loader');
+        const loaderText = document.getElementById('loader-text');
+        const step3 = document.getElementById('step3');
         const finalReplyEl = document.getElementById('finalReply');
         const replyTranslationDisplayEl = document.getElementById('replyTranslationDisplay');
         const copyBtn = document.getElementById('copyBtn');
         const resetBtn = document.getElementById('resetBtn');
-
+        const errorMessage = document.getElementById('error-message');
+        
         // App State
         let imageData = null;
         let analysisResult = {};
         let selectedTone = '';
 
         // Event Listeners
+        homeBtn.addEventListener('click', resetApp);
+        startWriteBtn.addEventListener('click', showWriteFlow);
+        startReplyBtn.addEventListener('click', showReplyFlow);
+
+        // -- Reply Flow Listeners
         dropzone.addEventListener('click', () => imageUpload.click());
-        dropzone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            dropzone.classList.add('border-gray-400', 'bg-gray-50');
-        });
-        dropzone.addEventListener('dragleave', () => {
-            dropzone.classList.remove('border-gray-400', 'bg-gray-50');
-        });
+        dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('border-gray-400', 'bg-gray-50'); });
+        dropzone.addEventListener('dragleave', () => { dropzone.classList.remove('border-gray-400', 'bg-gray-50'); });
         dropzone.addEventListener('drop', (e) => {
             e.preventDefault();
             dropzone.classList.remove('border-gray-400', 'bg-gray-50');
-            const files = e.dataTransfer.files;
-            if (files.length > 0) {
-                handleFile(files[0]);
-            }
+            if (e.dataTransfer.files.length > 0) handleFile(e.dataTransfer.files[0]);
         });
-        imageUpload.addEventListener('change', (e) => {
-            if (e.target.files.length > 0) {
-                handleFile(e.target.files[0]);
-            }
-        });
-
+        imageUpload.addEventListener('change', (e) => { if (e.target.files.length > 0) handleFile(e.target.files[0]); });
         analyzeBtn.addEventListener('click', handleAnalyze);
-        generateBtn.addEventListener('click', handleGenerate);
+        generateReplyBtn.addEventListener('click', handleGenerateReply);
+        replyToneOptions.addEventListener('click', (e) => handleToneSelection(e, replyToneOptions));
+
+        // -- Write Flow Listeners
+        generateWriteBtn.addEventListener('click', handleGenerateWrite);
+        writeToneOptions.addEventListener('click', (e) => handleToneSelection(e, writeToneOptions));
+        
+        // -- Common Listeners
         copyBtn.addEventListener('click', handleCopy);
         resetBtn.addEventListener('click', resetApp);
         
-        toneOptions.addEventListener('click', (e) => {
+        // Functions
+        function showWriteFlow() {
+            startScreen.classList.add('hidden');
+            writeFlowContainer.classList.remove('hidden');
+        }
+
+        function showReplyFlow() {
+            startScreen.classList.add('hidden');
+            replyFlowContainer.classList.remove('hidden');
+        }
+
+        function handleToneSelection(e, container) {
             if (e.target.tagName === 'BUTTON') {
-                document.querySelectorAll('.btn-tone').forEach(btn => btn.classList.remove('active'));
+                container.querySelectorAll('.btn-tone').forEach(btn => btn.classList.remove('active'));
                 e.target.classList.add('active');
                 selectedTone = e.target.dataset.tone;
             }
-        });
+        }
 
-        // Functions
         function handleFile(file) {
             if (!file.type.startsWith('image/')) {
                 showError('请上传图片文件。');
@@ -269,7 +327,7 @@
                 showError('请先选择一张图片。');
                 return;
             }
-            setLoading(true);
+            setLoading(true, 'AI 正在努力分析，请稍候...');
             step1.classList.add('hidden');
 
             try {
@@ -278,19 +336,13 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ image: imageData })
                 });
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || '分析图片时发生未知错误。');
-                }
-
+                if (!response.ok) throw new Error((await response.json()).error || '分析图片时发生未知错误。');
+                
                 const data = await response.json();
                 analysisResult = data;
-                
                 languageEl.textContent = data.language || '未能识别';
                 originalTextEl.textContent = data.originalText || '未能识别';
                 translatedTextEl.textContent = data.translatedText || '未能翻译';
-
                 step2.classList.remove('hidden');
             } catch (err) {
                 showError(err.message);
@@ -300,18 +352,12 @@
             }
         }
         
-        async function handleGenerate() {
+        async function handleGenerateReply() {
             const userIntent = replyIntentEl.value.trim();
-            if (!userIntent) {
-                showError('请输入您想回复的内容。');
-                return;
-            }
-            if (!selectedTone) {
-                showError('请选择一个回复语气。');
-                return;
-            }
+            if (!userIntent) return showError('请输入您想回复的内容。');
+            if (!selectedTone) return showError('请选择一个回复语气。');
             
-            setLoading(true);
+            setLoading(true, 'AI 正在生成回复，请稍候...');
             step2.classList.add('hidden');
             
             try {
@@ -325,20 +371,48 @@
                         tone: selectedTone
                     })
                 });
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || '生成回复时发生未知错误。');
-                }
-
+                if (!response.ok) throw new Error((await response.json()).error || '生成回复时发生未知错误。');
+                
                 const data = await response.json();
                 finalReplyEl.textContent = data.reply;
                 replyTranslationDisplayEl.textContent = data.replyTranslation;
                 step3.classList.remove('hidden');
-
             } catch(err) {
                 showError(err.message);
                 step2.classList.remove('hidden');
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        async function handleGenerateWrite() {
+            const userIntent = writeIntentEl.value.trim();
+            const targetLanguage = targetLanguageEl.value;
+            if (!userIntent) return showError('请输入您想写的内容。');
+            if (!selectedTone) return showError('请选择一个语气。');
+
+            setLoading(true, 'AI 正在生成信息，请稍候...');
+            writeFlowContainer.classList.add('hidden');
+
+            try {
+                const response = await fetch('/api/generateMessage', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        targetLanguage: targetLanguage,
+                        userIntent: userIntent,
+                        tone: selectedTone
+                    })
+                });
+                if (!response.ok) throw new Error((await response.json()).error || '生成信息时发生未知错误。');
+                
+                const data = await response.json();
+                finalReplyEl.textContent = data.reply;
+                replyTranslationDisplayEl.textContent = data.replyTranslation;
+                step3.classList.remove('hidden');
+            } catch(err) {
+                showError(err.message);
+                writeFlowContainer.classList.remove('hidden');
             } finally {
                 setLoading(false);
             }
@@ -355,10 +429,11 @@
                 });
         }
 
-        function setLoading(isLoading) {
+        function setLoading(isLoading, text = '') {
+            errorMessage.classList.add('hidden');
             if (isLoading) {
+                loaderText.textContent = text;
                 loader.classList.remove('hidden');
-                errorMessage.classList.add('hidden');
             } else {
                 loader.classList.add('hidden');
             }
@@ -370,25 +445,36 @@
         }
 
         function resetApp() {
+            // Hide all flow containers
+            writeFlowContainer.classList.add('hidden');
+            replyFlowContainer.classList.add('hidden');
+            step1.classList.remove('hidden'); // Reset reply flow to its step 1
+            step2.classList.add('hidden');
+            step3.classList.add('hidden');
+            loader.classList.add('hidden');
+            errorMessage.classList.add('hidden');
+
+            // Show start screen
+            startScreen.classList.remove('hidden');
+
+            // Reset states
             imageData = null;
             analysisResult = {};
             selectedTone = '';
 
+            // Reset reply flow inputs
             imageUpload.value = '';
             imagePreview.classList.add('hidden');
             imagePreview.src = '';
             uploadPrompt.classList.remove('hidden');
             analyzeBtn.disabled = true;
-
             replyIntentEl.value = '';
-            document.querySelectorAll('.btn-tone').forEach(btn => btn.classList.remove('active'));
-            replyTranslationDisplayEl.textContent = ''; 
+            replyToneOptions.querySelectorAll('.btn-tone').forEach(btn => btn.classList.remove('active'));
 
-            step1.classList.remove('hidden');
-            step2.classList.add('hidden');
-            step3.classList.add('hidden');
-            loader.classList.add('hidden');
-            errorMessage.classList.add('hidden');
+            // Reset write flow inputs
+            writeIntentEl.value = '';
+            targetLanguageEl.selectedIndex = 0;
+            writeToneOptions.querySelectorAll('.btn-tone').forEach(btn => btn.classList.remove('active'));
         }
     </script>
 </body>
