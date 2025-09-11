@@ -3,22 +3,37 @@
 
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-export default async function handler(req) {
-    if (req.method !== 'POST') {
-        return new Response(JSON.stringify({ error: 'Method not allowed' }), {
-            status: 405,
-            headers: { 'Content-Type': 'application/json' },
+// Helper function to parse the request body
+async function getBody(req) {
+    return new Promise((resolve, reject) => {
+        let body = '';
+        req.on('data', chunk => body += chunk.toString());
+        req.on('end', () => {
+            try {
+                resolve(JSON.parse(body));
+            } catch (e) {
+                reject(e);
+            }
         });
+        req.on('error', err => reject(err));
+    });
+}
+
+export default async function handler(req, res) {
+    console.log("--- [analyzeImage] API Endpoint Hit ---");
+
+    if (req.method !== 'POST') {
+        console.warn("[analyzeImage] Method not allowed:", req.method);
+        return res.status(405).json({ error: 'Method not allowed' });
     }
 
     try {
-        const { image: base64ImageData } = await req.json();
+        const { image: base64ImageData } = await getBody(req);
+        console.log("[analyzeImage] Received request with image data.");
 
         if (!base64ImageData) {
-            return new Response(JSON.stringify({ error: 'No image data provided' }), {
-                status: 400,
-                headers: { 'Content-Type': 'application/json' },
-            });
+             console.error("[analyzeImage] Error: No image data provided in request.");
+            return res.status(400).json({ error: 'No image data provided' });
         }
 
         const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
@@ -33,30 +48,29 @@ export default async function handler(req) {
             },
         };
 
+        console.log("[analyzeImage] Sending request to Gemini Vision API...");
         const result = await model.generateContent([prompt, imagePart]);
         const response = result.response;
+        console.log("[analyzeImage] Successfully received response from Gemini API.");
         
-        // **[核心修复]** 采用更稳健的方式解析回复
         const candidates = response.candidates;
         if (!candidates || candidates.length === 0 || !candidates[0].content || !candidates[0].content.parts || candidates[0].content.parts.length === 0) {
+            console.error("[analyzeImage] Gemini API returned no content. It might be blocked due to safety settings.", JSON.stringify(response));
             throw new Error("API returned no content, it might be blocked due to safety settings.");
         }
         const responseText = candidates[0].content.parts[0].text;
+        console.log("[analyzeImage] Extracted text from response.");
 
         const jsonString = responseText.replace(/```json/g, "").replace(/```/g, "").trim();
         const data = JSON.parse(jsonString);
+        console.log("[analyzeImage] Successfully parsed JSON response.");
 
-        return new Response(JSON.stringify(data), {
-            status: 200,
-            headers: { 'Content-Type': 'application/json' },
-        });
+        console.log("--- [analyzeImage] API Request Completed Successfully ---");
+        return res.status(200).json(data);
 
     } catch (error) {
-        console.error("Error in analyzeImage API:", error);
-        return new Response(JSON.stringify({ error: 'Failed to analyze image.', details: error.message }), {
-            status: 500,
-            headers: { 'Content-Type': 'application/json' },
-        });
+        console.error("!!! [analyzeImage] CRITICAL ERROR:", error);
+        return res.status(500).json({ error: 'Failed to analyze image.', details: error.message });
     }
 }
 
