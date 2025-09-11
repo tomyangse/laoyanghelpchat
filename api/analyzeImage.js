@@ -3,8 +3,6 @@
 
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-// 移除了 Vercel Edge Runtime 的配置，使用默认的 Node.js 环境
-
 export default async function handler(req) {
     if (req.method !== 'POST') {
         return new Response(JSON.stringify({ error: 'Method not allowed' }), {
@@ -15,6 +13,7 @@ export default async function handler(req) {
 
     try {
         const { image: base64ImageData } = await req.json();
+
         if (!base64ImageData) {
             return new Response(JSON.stringify({ error: 'No image data provided' }), {
                 status: 400,
@@ -23,26 +22,27 @@ export default async function handler(req) {
         }
 
         const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+        // Use the gemini-pro-vision model for image analysis
         const model = genAI.getGenerativeModel({ model: "gemini-pro-vision" });
 
-        const prompt = "请从这张图片中提取所有文字，然后判断这些文字是什么语言（例如：English, Spanish, Chinese），最后将提取的文字内容翻译成通顺的中文。请严格按照以下JSON格式返回，不要有任何多余的解释：{\"language\": \"识别出的语言\", \"originalText\": \"提取的原文\", \"translatedText\": \"翻译后的中文\"}";
+        const prompt = "从这张图片中提取所有文字。然后，判断这些文字是什么语言（例如：English, Spanish, Chinese）。最后，将提取的文字翻译成简体中文。请以JSON格式返回结果，包含三个字段：'text' (提取的原文), 'language' (检测到的语言), 和 'translation' (中文翻译)。";
         
         const imagePart = {
             inlineData: {
                 data: base64ImageData,
-                mimeType: "image/jpeg",
+                mimeType: "image/jpeg", // Assuming jpeg, but the model is robust
             },
         };
 
         const result = await model.generateContent([prompt, imagePart]);
-        const response = await result.response;
-        const text = await response.text();
-        
-        // 清理并解析AI返回的JSON字符串
-        const cleanedText = text.replace(/```json/g, '').replace(/```/g, '').trim();
-        const parsedResult = JSON.parse(cleanedText);
+        const response = result.response;
+        const responseText = response.text();
 
-        return new Response(JSON.stringify(parsedResult), {
+        // Clean the response to get pure JSON
+        const jsonString = responseText.replace(/```json/g, "").replace(/```/g, "").trim();
+        const data = JSON.parse(jsonString);
+
+        return new Response(JSON.stringify(data), {
             status: 200,
             headers: { 'Content-Type': 'application/json' },
         });
