@@ -31,7 +31,7 @@ export default async function handler(req, res) {
         console.log(`[generateMessage] Received request. Language: ${targetLanguage}, Tone: ${tone}`);
 
         const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
         // --- NEW, STRICTER PROMPT ---
         const prompt = `
@@ -80,5 +80,6 @@ export default async function handler(req, res) {
         return res.status(500).json({ error: 'Failed to generate message.', details: error.message });
     }
 }
+
 
 
